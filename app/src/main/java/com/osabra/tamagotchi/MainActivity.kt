@@ -37,7 +37,7 @@ private class PetStore(context: Context) {
             p.getInt("coins", 20), p.getInt("xp", 0), p.getInt("level", 1)
         ).let { it.copy(hunger=max(0,it.hunger), happiness=max(0,it.happiness), energy=max(0,it.energy), hygiene=max(0,it.hygiene)) }
     }
-    fun save(s: PetState) = p.edit().putInt("hunger",s.hunger).putInt("happiness",s.happiness).putInt("energy",s.energy).putInt("hygiene",s.hygiene).putInt("coins",s.coins).putInt("xp",s.xp).putInt("level",s.level).putLong("last",System.currentTimeMillis()).apply()
+    fun save(s: PetState) = p.edit().putInt("hunger",s.hunger).putInt("happiness",s.happiness).putInt("energy",s.energy).putInt("hygiene",s.hygiene).putInt("coins",s.coins).putInt("xp",s.xp).putInt("level",s.level).putInt("food",s.food).putInt("toys",s.toys).putInt("wins",s.wins).putLong("last",System.currentTimeMillis()).apply()
 }
 
 class MainActivity : ComponentActivity() {
