@@ -20,7 +20,7 @@ import kotlin.math.max
 
 private data class PetState(
     val hunger: Int = 80, val happiness: Int = 80, val energy: Int = 80, val hygiene: Int = 80,
-    val coins: Int = 20, val xp: Int = 0, val level: Int = 1
+    val coins: Int = 20, val xp: Int = 0, val level: Int = 1, val food: Int = 2, val toys: Int = 0, val wins: Int = 0
 )
 
 private class PetStore(context: Context) {
@@ -34,7 +34,7 @@ private class PetStore(context: Context) {
             p.getInt("happiness", 80) - (minutes / 45).toInt(),
             p.getInt("energy", 80) - (minutes / 60).toInt(),
             p.getInt("hygiene", 80) - (minutes / 40).toInt(),
-            p.getInt("coins", 20), p.getInt("xp", 0), p.getInt("level", 1)
+            p.getInt("coins", 20), p.getInt("xp", 0), p.getInt("level", 1), p.getInt("food", 2), p.getInt("toys", 0), p.getInt("wins", 0)
         ).let { it.copy(hunger=max(0,it.hunger), happiness=max(0,it.happiness), energy=max(0,it.energy), hygiene=max(0,it.hygiene)) }
     }
     fun save(s: PetState) = p.edit().putInt("hunger",s.hunger).putInt("happiness",s.happiness).putInt("energy",s.energy).putInt("hygiene",s.hygiene).putInt("coins",s.coins).putInt("xp",s.xp).putInt("level",s.level).putInt("food",s.food).putInt("toys",s.toys).putInt("wins",s.wins).putLong("last",System.currentTimeMillis()).apply()
@@ -62,7 +62,7 @@ fun TamagotchiApp(store: PetStore) {
                 Text("XP ${pet.xp}/100", Modifier.padding(top=5.dp))
                 Spacer(Modifier.height(12.dp))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement=Arrangement.SpaceEvenly) {
-                    Action("🍎","Comer"){ update(pet.copy(hunger=(pet.hunger+20).coerceAtMost(100), happiness=(pet.happiness+3).coerceAtMost(100), xp=pet.xp+5),"¡Ñam!") }
+                    Action("🍎","Comer"){ if(pet.food > 0) update(pet.copy(food=pet.food-1,hunger=(pet.hunger+20).coerceAtMost(100)), happiness=(pet.happiness+3).coerceAtMost(100), xp=pet.xp+5),"¡Ñam!") }
                     Action("🎾","Jugar"){ if(pet.energy>=8) update(pet.copy(happiness=(pet.happiness+15).coerceAtMost(100),energy=pet.energy-8,coins=pet.coins+3,xp=pet.xp+10),"¡Qué divertido!") else message="Estoy cansado…" }
                     Action("🛁","Limpiar"){ update(pet.copy(hygiene=100,happiness=(pet.happiness+5).coerceAtMost(100),xp=pet.xp+5),"¡Qué limpio!") }
                     Action("💤","Dormir"){ update(pet.copy(energy=100,xp=pet.xp+5),"Zzz…") }
