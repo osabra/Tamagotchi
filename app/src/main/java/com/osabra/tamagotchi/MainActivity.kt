@@ -49,7 +49,7 @@ fun TamagotchiApp(store: PetStore) {
     var pet by remember { mutableStateOf(store.load()) }
     var message by remember { mutableStateOf("¡Hola! Soy tu mascota") }
     fun update(next: PetState, text: String) { pet=next; store.save(next); message=text }
-    LaunchedEffect(Unit) { while(true){ delay(60_000); update(pet.copy(hunger=max(0,pet.hunger-2), happiness=max(0,pet.happiness-1), energy=max(0,pet.energy-1), hygiene=max(0,pet.hygiene-1)), message) } }
+    LaunchedEffect(Unit) { while(true){ delay(60_000); update(pet.copy(hunger=max(0,pet.hunger-2), happiness=max(0,pet.happiness-1), energy=max(0,pet.energy-1), hygiene=max(0,pet.hygiene-1)), "Necesito cuidados…") } }
     MaterialTheme {
         Surface(Modifier.fillMaxSize(), Color(0xFFFFF7E8)) {
             Column(Modifier.fillMaxSize().padding(18.dp), horizontalAlignment=Alignment.CenterHorizontally) {
@@ -62,7 +62,7 @@ fun TamagotchiApp(store: PetStore) {
                 Text("XP ${pet.xp}/100", Modifier.padding(top=5.dp))
                 Spacer(Modifier.height(12.dp))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement=Arrangement.SpaceEvenly) {
-                    Action("🍎","Comer"){ if(pet.food > 0) update(pet.copy(food=pet.food-1,hunger=(pet.hunger+20).coerceAtMost(100)), happiness=(pet.happiness+3).coerceAtMost(100), xp=pet.xp+5),"¡Ñam!") }
+                    Action("🍎","Comer"){ if(pet.food > 0) update(pet.copy(food=pet.food-1,hunger=(pet.hunger+20).coerceAtMost(100),happiness=(pet.happiness+3).coerceAtMost(100),xp=pet.xp+5),"¡Ñam!") }
                     Action("🎾","Jugar"){ if(pet.energy>=8) update(pet.copy(happiness=(pet.happiness+15).coerceAtMost(100),energy=pet.energy-8,coins=pet.coins+3,xp=pet.xp+10),"¡Qué divertido!") else message="Estoy cansado…" }
                     Action("🛁","Limpiar"){ update(pet.copy(hygiene=100,happiness=(pet.happiness+5).coerceAtMost(100),xp=pet.xp+5),"¡Qué limpio!") }
                     Action("💤","Dormir"){ update(pet.copy(energy=100,xp=pet.xp+5),"Zzz…") }
