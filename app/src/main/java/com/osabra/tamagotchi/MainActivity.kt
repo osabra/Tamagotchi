@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun TamagotchiApp(store: PetStore) {
+private fun TamagotchiApp(store: PetStore) {
     var pet by remember { mutableStateOf(store.load()) }
     var message by remember { mutableStateOf("¡Hola! Soy tu mascota") }
     fun update(next: PetState, text: String) { pet=next; store.save(next); message=text }
