@@ -19,6 +19,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -132,6 +134,8 @@ private fun TamagotchiApp(store: PetStore) {
             }
         }
     }
+}
+
 @Composable
 private fun PetScene(level:Int, health:Int) {
     val stage=when { level<3->0; level<6->1; level<10->2; level<15->3; else->4 }
