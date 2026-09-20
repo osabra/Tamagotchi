@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.text.font.FontWeight
@@ -64,7 +65,7 @@ private fun TamagotchiApp(store: PetStore) {
     fun update(next: PetState, text: String) { var n=next; if(n.xp>=100) n=n.copy(level=n.level+1,xp=n.xp-100); pet=n; store.save(n); message=text }
     LaunchedEffect(Unit) { while(true){ delay(60_000); update(pet.copy(hunger=max(0,pet.hunger-2), happiness=max(0,pet.happiness-1), energy=max(0,pet.energy-1), hygiene=max(0,pet.hygiene-1)), "Necesito cuidados…") } }
     MaterialTheme {
-        Surface(Modifier.fillMaxSize(), Color(0xFFFFF7E8)) {
+        Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFFFFF7E8)) {
             Column(Modifier.fillMaxSize().padding(18.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("Mi Mascota", fontSize=30.sp, fontWeight=FontWeight.Bold)
                 Text("Nivel " + pet.level + "   🪙 " + pet.coins, fontSize=18.sp)
@@ -149,7 +150,7 @@ private fun PetScene(level:Int, health:Int) {
             3->Brush.verticalGradient(listOf(Color(0xFF75C96A),Color(0xFF286D47)))
             else->Brush.verticalGradient(listOf(Color(0xFF8871D2),Color(0xFF263A77)))
         }
-        drawRoundRect(bg,Offset.Zero,Size(w,h),28.dp.toPx())
+        drawRoundRect(brush=bg, topLeft=Offset.Zero, size=Size(w,h), cornerRadius=CornerRadius(28.dp.toPx(),28.dp.toPx()))
         if(stage==1||stage==3) for(i in 0..4) {
             val x=70f+i*(w-140f)/4f
             drawCircle(Color(0xFF3C7C43),38f,Offset(x,62f))
@@ -157,7 +158,7 @@ private fun PetScene(level:Int, health:Int) {
         }
         if(stage==2) {
             drawRect(Color(0xFF8B5A3C),Offset(0f,h-82f),Size(w,82f))
-            drawRoundRect(Color(0xFFF0D0A0),Offset(w/2-130f,h-165f),Size(260f,90f),18.dp.toPx())
+            drawRoundRect(color=Color(0xFFF0D0A0), topLeft=Offset(w/2-130f,h-165f), size=Size(260f,90f), cornerRadius=CornerRadius(18.dp.toPx(),18.dp.toPx()))
         }
         if(stage==0) {
             drawRect(Color(0xFF8B5A2B),Offset(0f,h-82f),Size(w,82f))
