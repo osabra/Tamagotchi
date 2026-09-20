@@ -265,7 +265,9 @@ private fun PetScene(level: Int, health: Int) {
         val bob = sin((breath + 0.5f) * PI.toFloat()) * 2.8f + floatPhase * 0.8f
         val cx = X(180f)
         val cy = Y(164f + bob)
-        val sc = when (stage) { 0 -> 0.45f; 1 -> 0.50f; 2 -> 0.55f; 3 -> 0.59f; else -> 0.61f }
+        // Mantener las proporciones y posiciones del personaje completas evita que el cuerpo se desmonte durante la animación.
+        // La respiración se aplica de forma muy sutil, no escalando cada pieza por separado.
+        val sc = 1f
         val sx = sc * (1f + breath * 0.018f)
         val sy = sc * (1f - breath * 0.014f)
         val earSway = sway * sc
