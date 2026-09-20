@@ -78,5 +78,25 @@ private fun TamagotchiApp(store: PetStore) {
     }
 }
 
-@Composable private fun Stat(label:String,value:Int){ Column(Modifier.fillMaxWidth().padding(vertical=2.dp)){ Row(Modifier.fillMaxWidth(),Arrangement.SpaceBetween){Text(label);Text("$value%")} Text("█".repeat((value / 10).coerceIn(0,10)) + "░".repeat((10 - value / 10).coerceIn(0,10)), fontSize = 12.sp) } }
+@Composable
+private fun Stat(label: String, value: Int) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(text = label)
+            Text(text = "$value%")
+        }
+        Text(
+            text = "█".repeat((value / 10).coerceIn(0, 10)) +
+                "░".repeat((10 - value / 10).coerceIn(0, 10)),
+            fontSize = 12.sp
+        )
+    }
+}
 @Composable private fun Action(icon:String,text:String,onClick:()->Unit){ Button(onClick=onClick,Modifier.size(78.dp),shape=RoundedCornerShape(18.dp),contentPadding=PaddingValues(2.dp)){Column(horizontalAlignment=Alignment.CenterHorizontally){Text(icon,fontSize=23.sp);Text(text,fontSize=10.sp)}} }
