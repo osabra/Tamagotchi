@@ -242,8 +242,8 @@ private fun PetScene(level:Int, health:Int) {
             else -> Color(0xFFC7C0B4)
         }
         val cx=X(180f)
-        val cy=Y(175f)
-        val sc=when(stage){0->0.72f;1->0.86f;2->0.98f;3->1.06f;else->1.10f}
+        val cy=Y(165f)
+        val sc=when(stage){0->0.45f;1->0.52f;2->0.57f;3->0.60f;else->0.62f}
 
         // Feet behind body
         drawOval(shade,Offset(cx-S(72f*sc),cy+S(55f*sc)),Size(S(48f*sc),S(30f*sc)))
