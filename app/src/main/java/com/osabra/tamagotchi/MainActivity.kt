@@ -55,7 +55,7 @@ private fun TamagotchiApp(store: PetStore) {
     fun update(next: PetState, text: String) { pet=next; store.save(next); message=text }
     LaunchedEffect(Unit) { while(true){ delay(60_000); update(pet.copy(hunger=max(0,pet.hunger-2), happiness=max(0,pet.happiness-1), energy=max(0,pet.energy-1), hygiene=max(0,pet.hygiene-1)), "Necesito cuidados…") } }
     MaterialTheme {
-        Surface(Modifier.fillMaxSize(), Color(0xFFFFF7E8)) {
+        Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFFFFF7E8)) {
             Column(Modifier.fillMaxSize().padding(18.dp), horizontalAlignment=Alignment.CenterHorizontally) {
                 Text("Mi Mascota", fontSize=30.sp, fontWeight=FontWeight.Bold)
                 Text("Nivel ${pet.level}   🪙 ${pet.coins}", fontSize=18.sp)
@@ -79,5 +79,5 @@ private fun TamagotchiApp(store: PetStore) {
     }
 }
 
-@Composable private fun Stat(label:String,value:Int){ Column(Modifier.fillMaxWidth().padding(vertical=2.dp)){ Row(Modifier.fillMaxWidth(),Arrangement.SpaceBetween){Text(label);Text("$value%")} LinearProgressIndicator(progress = { value / 100f }, modifier = Modifier.fillMaxWidth().height(7.dp)) } }
+@Composable private fun Stat(label:String,value:Int){ Column(Modifier.fillMaxWidth().padding(vertical=2.dp)){ Row(Modifier.fillMaxWidth(),Arrangement.SpaceBetween){Text(label);Text("$value%")} LinearProgressIndicator(progress = value / 100f, modifier = Modifier.fillMaxWidth().height(7.dp)) } }
 @Composable private fun Action(icon:String,text:String,onClick:()->Unit){ Button(onClick=onClick,Modifier.size(78.dp),shape=RoundedCornerShape(18.dp),contentPadding=PaddingValues(2.dp)){Column(horizontalAlignment=Alignment.CenterHorizontally){Text(icon,fontSize=23.sp);Text(text,fontSize=10.sp)}} }
