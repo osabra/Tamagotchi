@@ -139,61 +139,168 @@ private fun TamagotchiApp(store: PetStore) {
 
 @Composable
 private fun PetScene(level:Int, health:Int) {
-    val stage=when { level<3->0; level<6->1; level<10->2; level<15->3; else->4 }
-    Canvas(Modifier.fillMaxWidth().height(285.dp)) {
-        val w=size.width
-        val h=size.height
-        val bg=when(stage) {
-            0->Brush.verticalGradient(listOf(Color(0xFF6D4327),Color(0xFFB87842)))
-            1->Brush.verticalGradient(listOf(Color(0xFF79CFFF),Color(0xFF63AD58)))
-            2->Brush.verticalGradient(listOf(Color(0xFFFFD7A1),Color(0xFFB66F4F)))
-            3->Brush.verticalGradient(listOf(Color(0xFF75C96A),Color(0xFF286D47)))
-            else->Brush.verticalGradient(listOf(Color(0xFF8871D2),Color(0xFF263A77)))
+    val stage = when {
+        level < 3 -> 0
+        level < 6 -> 1
+        level < 10 -> 2
+        level < 15 -> 3
+        else -> 4
+    }
+    Canvas(
+        Modifier
+            .fillMaxWidth()
+            .height(300.dp)
+    ) {
+        val w = size.width
+        val h = size.height
+        val u = minOf(w / 360f, h / 300f)
+        fun X(v:Float) = v * u + (w - 360f*u) / 2f
+        fun Y(v:Float) = v * u + (h - 300f*u) / 2f
+        fun S(v:Float) = v * u
+
+        val sky = when(stage) {
+            0 -> Brush.verticalGradient(listOf(Color(0xFF5B3A29), Color(0xFFB97845)))
+            1 -> Brush.verticalGradient(listOf(Color(0xFF6FC9FF), Color(0xFF7BCB69)))
+            2 -> Brush.verticalGradient(listOf(Color(0xFFFFC98A), Color(0xFFB9684E)))
+            3 -> Brush.verticalGradient(listOf(Color(0xFF4CA96A), Color(0xFF1F6149)))
+            else -> Brush.verticalGradient(listOf(Color(0xFF6551B7), Color(0xFF172A62)))
         }
-        drawRoundRect(brush=bg, topLeft=Offset.Zero, size=Size(w,h), cornerRadius=CornerRadius(28.dp.toPx(),28.dp.toPx()))
-        if(stage==1||stage==3) for(i in 0..4) {
-            val x=70f+i*(w-140f)/4f
-            drawCircle(Color(0xFF3C7C43),38f,Offset(x,62f))
-            drawRect(Color(0xFF7A4A2B),Offset(x-7f,72f),Size(14f,75f))
-        }
-        if(stage==2) {
-            drawRect(Color(0xFF8B5A3C),Offset(0f,h-82f),Size(w,82f))
-            drawRoundRect(color=Color(0xFFF0D0A0), topLeft=Offset(w/2-130f,h-165f), size=Size(260f,90f), cornerRadius=CornerRadius(18.dp.toPx(),18.dp.toPx()))
-        }
-        if(stage==0) {
-            drawRect(Color(0xFF8B5A2B),Offset(0f,h-82f),Size(w,82f))
-            drawOval(Color(0xFFE9D0A2),Offset(w/2-70f,h-145f),Size(140f,95f))
-        }
-        val cx=w/2
-        val cy=h*0.59f
-        val scale=when(stage){0->0.72f;1->0.78f;2->0.90f;3->1f;else->1.04f}
-        val fur=when(stage){1->Color(0xFFF0E2C8);2->Color(0xFFD7C1A2);3->Color(0xFF9A633D);else->Color(0xFFF3EFE7)}
-        if(stage==0) {
-            drawOval(Color(0xFFE9D6A8),Offset(cx-48f,cy-55f),Size(96f,120f))
-            drawOval(Color(0xFFB28B55),Offset(cx-37f,cy-45f),Size(74f,100f))
-            drawOval(Color(0xFFFFF2D2),Offset(cx-23f,cy+5f),Size(46f,42f))
+        drawRoundRect(
+            brush = sky,
+            topLeft = Offset(X(0f), Y(0f)),
+            size = Size(S(360f), S(300f)),
+            cornerRadius = CornerRadius(S(30f), S(30f))
+        )
+
+        if (stage == 1) {
+            drawCircle(Color(0x66FFFFFF), S(28f), Offset(X(65f),Y(55f)))
+            drawCircle(Color(0x55FFFFFF), S(22f), Offset(X(290f),Y(70f)))
+            drawCircle(Color(0x77FFFFFF), S(18f), Offset(X(315f),Y(42f)))
+            for (i in 0..5) {
+                val tx = 15f + i * 68f
+                drawCircle(Color(0xFF3D824B), S(34f), Offset(X(tx),Y(185f)))
+                drawCircle(Color(0xFF4D9554), S(27f), Offset(X(tx+25f),Y(178f)))
+                drawRect(Color(0xFF76502D), Offset(X(tx+8f),Y(180f)), Size(S(10f),S(70f)))
+            }
+            drawRect(Color(0xFF6EAD4F), Offset(X(0f),Y(230f)), Size(S(360f),S(70f)))
+        } else if (stage == 2) {
+            drawCircle(Color(0xFFFFE4A6), S(28f), Offset(X(285f),Y(48f)))
+            drawCircle(Color(0xFFFFB17A), S(8f), Offset(X(55f),Y(55f)))
+            drawCircle(Color(0xFFFFB17A), S(8f), Offset(X(88f),Y(70f)))
+            drawRect(Color(0xFF80513D), Offset(X(0f),Y(232f)), Size(S(360f),S(68f)))
+            for (i in 0..3) {
+                val tx = 25f + i * 95f
+                drawCircle(Color(0xFF9B5B43), S(36f), Offset(X(tx),Y(215f)))
+            }
+        } else if (stage == 3) {
+            drawCircle(Color(0xFFB6F2C1), S(45f), Offset(X(50f),Y(50f)))
+            drawCircle(Color(0xFF7FD69B), S(30f), Offset(X(90f),Y(70f)))
+            drawRect(Color(0xFF24583E), Offset(X(0f),Y(230f)), Size(S(360f),S(70f)))
+            for (i in 0..4) {
+                val tx=15f+i*82f
+                drawCircle(Color(0xFF173F32),S(38f),Offset(X(tx),Y(205f)))
+                drawCircle(Color(0xFF2D7650),S(30f),Offset(X(tx+22f),Y(190f)))
+                drawRect(Color(0xFF69452C),Offset(X(tx+12f),Y(195f)),Size(S(9f),S(55f)))
+            }
+            drawCircle(Color(0xFFFFE9A8), S(3f), Offset(X(38f),Y(38f)))
+            drawCircle(Color(0xFFFFE9A8), S(3f), Offset(X(315f),Y(62f)))
+        } else if (stage == 4) {
+            drawCircle(Color(0xFFFFF2B5), S(31f), Offset(X(286f),Y(50f)))
+            drawCircle(Color(0xFF6551B7), S(27f), Offset(X(274f),Y(44f)))
+            for (p in listOf(25f to 40f, 82f to 72f, 145f to 36f, 220f to 78f, 320f to 35f)) {
+                drawCircle(Color(0xFFFFE9A8), S(2.5f), Offset(X(p.first),Y(p.second)))
+                drawCircle(Color(0xFFFFE9A8), S(1.5f), Offset(X(p.first+18f),Y(p.second+18f)))
+            }
+            drawRect(Color(0xFF1B315E), Offset(X(0f),Y(232f)), Size(S(360f),S(68f)))
+            for (i in 0..5) {
+                val tx=5f+i*70f
+                drawCircle(Color(0xFF122A4A),S(30f),Offset(X(tx),Y(220f)))
+            }
         } else {
-            drawOval(fur,Offset(cx-72f*scale,cy-5f),Size(144f*scale,150f*scale))
-            drawOval(fur,Offset(cx-58f*scale,cy-105f*scale),Size(116f*scale,120f*scale))
-            drawOval(fur,Offset(cx-52f*scale,cy-200f*scale),Size(34f*scale,120f*scale))
-            drawOval(fur,Offset(cx+18f*scale,cy-200f*scale),Size(34f*scale,120f*scale))
-            drawOval(Color(0xFFFF9A98),Offset(cx-45f*scale,cy-188f*scale),Size(18f*scale,86f*scale))
-            drawOval(Color(0xFFFF9A98),Offset(cx+25f*scale,cy-188f*scale),Size(18f*scale,86f*scale))
-            drawOval(Color.White,Offset(cx-43f*scale,cy-95f*scale),Size(34f*scale,44f*scale))
-            drawOval(Color.White,Offset(cx+9f*scale,cy-95f*scale),Size(34f*scale,44f*scale))
-            drawCircle(Color(0xFF2B211C),10f*scale,Offset(cx-25f*scale,cy-75f*scale))
-            drawCircle(Color(0xFF2B211C),10f*scale,Offset(cx+25f*scale,cy-75f*scale))
-            drawCircle(Color.White,3.5f*scale,Offset(cx-21f*scale,cy-79f*scale))
-            drawCircle(Color.White,3.5f*scale,Offset(cx+29f*scale,cy-79f*scale))
-            drawOval(Color(0xFFFF8D86),Offset(cx-8f*scale,cy-52f*scale),Size(16f*scale,11f*scale))
-            drawLine(Color(0xFF3A2A24),Offset(cx,cy-42f*scale),Offset(cx-10f*scale,cy-32f*scale),4f*scale)
-            drawLine(Color(0xFF3A2A24),Offset(cx,cy-42f*scale),Offset(cx+10f*scale,cy-32f*scale),4f*scale)
-            drawCircle(Color(0xFFF4F1EA),9f*scale,Offset(cx-61f*scale,cy+116f*scale))
-            drawCircle(Color(0xFFF4F1EA),9f*scale,Offset(cx+61f*scale,cy+116f*scale))
-            drawCircle(Color(0xFFFFB0B0),8f*scale,Offset(cx-58f*scale,cy+113f*scale))
-            drawCircle(Color(0xFFFFB0B0),8f*scale,Offset(cx+58f*scale,cy+113f*scale))
+            drawRect(Color(0xFF744D2F), Offset(X(0f),Y(235f)), Size(S(360f),S(65f)))
         }
-        if(health<30) drawCircle(Color(0xFFFFD54F),8f,Offset(cx+95f,cy-125f))
+
+        // Character shadow
+        drawOval(
+            Color(0x55000000),
+            Offset(X(115f),Y(244f)),
+            Size(S(130f),S(22f))
+        )
+
+        val body = when(stage) {
+            0 -> Color(0xFFD8B47A)
+            1 -> Color(0xFFE9DCC6)
+            2 -> Color(0xFFD8C1A7)
+            3 -> Color(0xFFB8794F)
+            else -> Color(0xFFF1EEE5)
+        }
+        val shade = when(stage) {
+            0 -> Color(0xFF9B7148)
+            1 -> Color(0xFFB9AA96)
+            2 -> Color(0xFFA98B70)
+            3 -> Color(0xFF77462F)
+            else -> Color(0xFFC7C0B4)
+        }
+        val cx=X(180f)
+        val cy=Y(175f)
+        val sc=when(stage){0->0.72f;1->0.86f;2->0.98f;3->1.06f;else->1.10f}
+
+        // Feet behind body
+        drawOval(shade,Offset(cx-S(72f*sc),cy+S(55f*sc)),Size(S(48f*sc),S(30f*sc)))
+        drawOval(shade,Offset(cx+S(24f*sc),cy+S(55f*sc)),Size(S(48f*sc),S(30f*sc)))
+        drawOval(Color(0xFFFFB1B4),Offset(cx-S(58f*sc),cy+S(62f*sc)),Size(S(20f*sc),S(10f*sc)))
+        drawOval(Color(0xFFFFB1B4),Offset(cx+S(38f*sc),cy+S(62f*sc)),Size(S(20f*sc),S(10f*sc)))
+
+        // Body
+        drawOval(shade,Offset(cx-S(78f*sc),cy-S(4f*sc)),Size(S(156f*sc),S(145f*sc)))
+        drawOval(body,Offset(cx-S(68f*sc),cy-S(12f*sc)),Size(S(136f*sc),S(137f*sc)))
+
+        // Belly
+        drawOval(Color(0xFFF8F4EA),Offset(cx-S(40f*sc),cy+S(25f*sc)),Size(S(80f*sc),S(83f*sc)))
+
+        // Arms
+        drawOval(body,Offset(cx-S(87f*sc),cy+S(12f*sc)),Size(S(34f*sc),S(80f*sc)))
+        drawOval(body,Offset(cx+S(53f*sc),cy+S(12f*sc)),Size(S(34f*sc),S(80f*sc)))
+
+        // Head
+        drawOval(shade,Offset(cx-S(67f*sc),cy-S(112f*sc)),Size(S(134f*sc),S(128f*sc)))
+        drawOval(body,Offset(cx-S(58f*sc),cy-S(120f*sc)),Size(S(116f*sc),S(118f*sc)))
+
+        // Ears with depth
+        drawOval(shade,Offset(cx-S(58f*sc),cy-S(220f*sc)),Size(S(48f*sc),S(118f*sc)))
+        drawOval(shade,Offset(cx+S(10f*sc),cy-S(220f*sc)),Size(S(48f*sc),S(118f*sc)))
+        drawOval(body,Offset(cx-S(51f*sc),cy-S(213f*sc)),Size(S(34f*sc),S(103f*sc)))
+        drawOval(body,Offset(cx+S(17f*sc),cy-S(213f*sc)),Size(S(34f*sc),S(103f*sc)))
+        drawOval(Color(0xFFFF9DA4),Offset(cx-S(43f*sc),cy-S(204f*sc)),Size(S(18f*sc),S(86f*sc)))
+        drawOval(Color(0xFFFF9DA4),Offset(cx+S(25f*sc),cy-S(204f*sc)),Size(S(18f*sc),S(86f*sc)))
+
+        // Muzzle and eyes
+        drawOval(Color(0xFFFDFBF5),Offset(cx-S(43f*sc),cy-S(65f*sc)),Size(S(86f*sc),S(62f*sc)))
+        drawCircle(Color(0xFF2A2422),S(12f*sc),Offset(cx-S(25f*sc),cy-S(73f*sc)))
+        drawCircle(Color(0xFF2A2422),S(12f*sc),Offset(cx+S(25f*sc),cy-S(73f*sc)))
+        drawCircle(Color.White,S(4f*sc),Offset(cx-S(21f*sc),cy-S(78f*sc)))
+        drawCircle(Color.White,S(4f*sc),Offset(cx+S(29f*sc),cy-S(78f*sc)))
+        drawOval(Color(0xFFFF8C8C),Offset(cx-S(10f*sc),cy-S(52f*sc)),Size(S(20f*sc),S(13f*sc)))
+        drawLine(Color(0xFF352722),Offset(cx,cy-S(40f*sc)),Offset(cx-S(11f*sc),cy-S(30f*sc)),S(3f))
+        drawLine(Color(0xFF352722),Offset(cx,cy-S(40f*sc)),Offset(cx+S(11f*sc),cy-S(30f*sc)),S(3f))
+
+        // Whiskers
+        for (dy in listOf(-6f,6f)) {
+            drawLine(Color(0xFF77736E),Offset(cx-S(45f*sc),cy+S(dy),),Offset(cx-S(82f*sc),cy+S(dy-8f)),S(2f))
+            drawLine(Color(0xFF77736E),Offset(cx+S(45f*sc),cy+S(dy)),Offset(cx+S(82f*sc),cy+S(dy-8f)),S(2f))
+        }
+
+        if (stage >= 3) {
+            drawCircle(Color(0xFFFFD95A),S(5f),Offset(cx-S(92f),cy-S(105f)))
+            drawCircle(Color(0xFFFFD95A),S(5f),Offset(cx+S(92f),cy-S(105f)))
+        }
+        if (stage == 4) {
+            drawCircle(Color(0xFF8D7BFF),S(7f),Offset(cx-S(104f),cy-S(70f)))
+            drawCircle(Color(0xFF8D7BFF),S(7f),Offset(cx+S(104f),cy-S(70f)))
+        }
+        if (health < 30) {
+            drawCircle(Color(0xFFFFD54F),S(9f),Offset(cx+S(92f),cy-S(120f)))
+        }
     }
 }
 
