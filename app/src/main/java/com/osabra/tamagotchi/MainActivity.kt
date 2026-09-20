@@ -160,7 +160,7 @@ private fun PetScene(level:Int, health:Int) {
         fun S(v:Float) = v * u
 
         val sky = when(stage) {
-            0 -> Brush.verticalGradient(listOf(Color(0xFF5B3A29), Color(0xFFB97845)))
+            0 -> Brush.verticalGradient(listOf(Color(0xFFFFD69A), Color(0xFFF2A36F)))
             1 -> Brush.verticalGradient(listOf(Color(0xFF6FC9FF), Color(0xFF7BCB69)))
             2 -> Brush.verticalGradient(listOf(Color(0xFFFFC98A), Color(0xFFB9684E)))
             3 -> Brush.verticalGradient(listOf(Color(0xFF4CA96A), Color(0xFF1F6149)))
@@ -218,7 +218,11 @@ private fun PetScene(level:Int, health:Int) {
                 drawCircle(Color(0xFF122A4A),S(30f),Offset(X(tx),Y(220f)))
             }
         } else {
-            drawRect(Color(0xFF744D2F), Offset(X(0f),Y(235f)), Size(S(360f),S(65f)))
+            drawCircle(Color(0xFFFFE4A6), S(30f), Offset(X(285f),Y(50f)))
+            drawCircle(Color(0xFFFFC27A), S(7f), Offset(X(55f),Y(55f)))
+            drawCircle(Color(0xFFFFB56D), S(6f), Offset(X(92f),Y(75f)))
+            drawRect(Color(0xFF9A6449), Offset(X(0f),Y(232f)), Size(S(360f),S(68f)))
+            for (i in 0..4) { val tx = 20f + i * 82f; drawCircle(Color(0xFFB16B4D), S(34f), Offset(X(tx),Y(215f))) }
         }
 
         // Character shadow
@@ -229,18 +233,18 @@ private fun PetScene(level:Int, health:Int) {
         )
 
         val body = when(stage) {
-            0 -> Color(0xFFD8B47A)
-            1 -> Color(0xFFE9DCC6)
-            2 -> Color(0xFFD8C1A7)
-            3 -> Color(0xFFB8794F)
-            else -> Color(0xFFF1EEE5)
+            0 -> Color(0xFFF4D9B8)
+            1 -> Color(0xFFF1E5D0)
+            2 -> Color(0xFFE4D4BC)
+            3 -> Color(0xFFD4A77E)
+            else -> Color(0xFFF3F0E8)
         }
         val shade = when(stage) {
-            0 -> Color(0xFF9B7148)
-            1 -> Color(0xFFB9AA96)
-            2 -> Color(0xFFA98B70)
-            3 -> Color(0xFF77462F)
-            else -> Color(0xFFC7C0B4)
+            0 -> Color(0xFFC28D63)
+            1 -> Color(0xFFC5B7A2)
+            2 -> Color(0xFFBCA58B)
+            3 -> Color(0xFF9E704F)
+            else -> Color(0xFFC9C3B8)
         }
         val cx=X(180f)
         val cy=Y(165f)
@@ -275,8 +279,10 @@ private fun PetScene(level:Int, health:Int) {
         drawOval(Color(0xFFFF9DA4),Offset(cx-S(43f*sc),cy-S(204f*sc)),Size(S(18f*sc),S(86f*sc)))
         drawOval(Color(0xFFFF9DA4),Offset(cx+S(25f*sc),cy-S(204f*sc)),Size(S(18f*sc),S(86f*sc)))
 
-        // Muzzle and eyes
+        // Muzzle, cheeks and eyes
         drawOval(Color(0xFFFDFBF5),Offset(cx-S(43f*sc),cy-S(65f*sc)),Size(S(86f*sc),S(62f*sc)))
+        drawCircle(Color(0xFFFFC7C7), S(9f*sc), Offset(cx-S(45f*sc),cy-S(43f*sc)))
+        drawCircle(Color(0xFFFFC7C7), S(9f*sc), Offset(cx+S(45f*sc),cy-S(43f*sc)))
         drawCircle(Color(0xFF2A2422),S(12f*sc),Offset(cx-S(25f*sc),cy-S(73f*sc)))
         drawCircle(Color(0xFF2A2422),S(12f*sc),Offset(cx+S(25f*sc),cy-S(73f*sc)))
         drawCircle(Color.White,S(4f*sc),Offset(cx-S(21f*sc),cy-S(78f*sc)))
