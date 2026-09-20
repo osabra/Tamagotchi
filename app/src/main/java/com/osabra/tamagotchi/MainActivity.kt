@@ -143,28 +143,35 @@ private fun TamagotchiApp(store: PetStore) {
 }
 
 @Composable
-private fun PetScene(level:Int, health:Int) {
-    val transition = rememberInfiniteTransition(label = "pet")
-    val t by transition.animateFloat(
+private fun PetScene(level: Int, health: Int) {
+    val transition = rememberInfiniteTransition(label = "pet3d")
+    val breath by transition.animateFloat(
         initialValue = 0f, targetValue = 1f,
         animationSpec = infiniteRepeatable(
-            animation = tween(2200, easing = FastOutSlowInEasing),
+            animation = tween(1800, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
-        ), label = "bounce"
+        ), label = "breath"
     )
     val sway by transition.animateFloat(
-        initialValue = -2.5f, targetValue = 2.5f,
+        initialValue = -2.8f, targetValue = 2.8f,
         animationSpec = infiniteRepeatable(
-            animation = tween(1500, easing = FastOutSlowInEasing),
+            animation = tween(1400, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
-        ), label = "sway"
+        ), label = "earSway"
     )
     val blinkPhase by transition.animateFloat(
         initialValue = 0f, targetValue = 1f,
         animationSpec = infiniteRepeatable(
-            animation = tween(3200, easing = LinearEasing),
+            animation = tween(3400, easing = LinearEasing),
             repeatMode = RepeatMode.Restart
         ), label = "blink"
+    )
+    val floatPhase by transition.animateFloat(
+        initialValue = -1f, targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2400, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ), label = "float"
     )
 
     val stage = when {
@@ -179,151 +186,209 @@ private fun PetScene(level:Int, health:Int) {
         val w = size.width
         val h = size.height
         val u = minOf(w / 360f, h / 300f)
-        fun X(v:Float) = v * u + (w - 360f*u) / 2f
-        fun Y(v:Float) = v * u + (h - 300f*u) / 2f
-        fun S(v:Float) = v * u
+        fun X(v: Float) = v * u + (w - 360f * u) / 2f
+        fun Y(v: Float) = v * u + (h - 300f * u) / 2f
+        fun S(v: Float) = v * u
 
-        val sky = when(stage) {
-            0 -> Brush.verticalGradient(listOf(Color(0xFFFFD9A0), Color(0xFFEFA06F)))
-            1 -> Brush.verticalGradient(listOf(Color(0xFF65C7FF), Color(0xFF79C86A)))
-            2 -> Brush.verticalGradient(listOf(Color(0xFFFFC58C), Color(0xFFB96B51)))
-            3 -> Brush.verticalGradient(listOf(Color(0xFF58B876), Color(0xFF1F6048)))
-            else -> Brush.verticalGradient(listOf(Color(0xFF7560C8), Color(0xFF182E67)))
+        val sky = when (stage) {
+            0 -> Brush.verticalGradient(listOf(Color(0xFFFFDDA9), Color(0xFFE99A6D)))
+            1 -> Brush.verticalGradient(listOf(Color(0xFF72D1FF), Color(0xFF68B96D)))
+            2 -> Brush.verticalGradient(listOf(Color(0xFFFFC88F), Color(0xFFB96A4F)))
+            3 -> Brush.verticalGradient(listOf(Color(0xFF61C27D), Color(0xFF1F6047)))
+            else -> Brush.verticalGradient(listOf(Color(0xFF7865D0), Color(0xFF1C336B)))
         }
-        drawRoundRect(brush=sky, topLeft=Offset(X(0f),Y(0f)), size=Size(S(360f),S(300f)),
-            cornerRadius=CornerRadius(S(30f),S(30f)))
+        drawRoundRect(
+            brush = sky,
+            topLeft = Offset(X(0f), Y(0f)),
+            size = Size(S(360f), S(300f)),
+            cornerRadius = CornerRadius(S(30f), S(30f))
+        )
 
-        // Escenarios con profundidad que cambian al evolucionar.
-        when(stage) {
+        // Fondo evolutivo: más profundidad, luz y pequeños detalles en cada etapa.
+        when (stage) {
             0 -> {
-                drawCircle(Color(0xFFFFE6A5),S(31f),Offset(X(285f),Y(50f)))
-                drawCircle(Color(0xFFFFB87A),S(8f),Offset(X(55f),Y(55f)))
-                drawCircle(Color(0xFFFFB87A),S(6f),Offset(X(90f),Y(72f)))
-                drawRect(Color(0xFF966048),Offset(X(0f),Y(232f)),Size(S(360f),S(68f)))
-                for(i in 0..4) drawCircle(Color(0xFFB16B4D),S(34f),Offset(X(20f+i*82f),Y(215f)))
+                drawCircle(Brush.radialGradient(listOf(Color(0xFFFFF1BD), Color(0x00FFF1BD)), radius = S(42f)), S(31f), Offset(X(285f), Y(50f)))
+                drawCircle(Color(0xFFFFB47D), S(8f), Offset(X(55f), Y(55f)))
+                drawCircle(Color(0xFFFFB47D), S(6f), Offset(X(90f), Y(72f)))
+                drawRect(Color(0xFF8F5B46), Offset(X(0f), Y(232f)), Size(S(360f), S(68f)))
+                for (i in 0..4) {
+                    drawCircle(Color(0xFFB56E50), S(34f), Offset(X(20f + i * 82f), Y(215f)))
+                    drawCircle(Color(0xFFCA805C), S(24f), Offset(X(13f + i * 82f), Y(205f)))
+                }
             }
             1 -> {
-                drawCircle(Color(0x66FFFFFF),S(42f),Offset(X(60f),Y(50f)))
-                drawCircle(Color(0x55FFFFFF),S(27f),Offset(X(91f),Y(72f)))
-                drawCircle(Color(0xFFFFE36B),S(4f),Offset(X(315f),Y(44f)))
-                drawRect(Color(0xFF69AD55),Offset(X(0f),Y(232f)),Size(S(360f),S(68f)))
-                for(i in 0..5) {
-                    val tx=10f+i*68f
-                    drawCircle(Color(0xFF347E50),S(34f),Offset(X(tx),Y(195f)))
-                    drawCircle(Color(0xFF4F9D5C),S(27f),Offset(X(tx+25f),Y(181f)))
-                    drawRect(Color(0xFF79502E),Offset(X(tx+10f),Y(185f)),Size(S(9f),S(65f)))
+                drawCircle(Brush.radialGradient(listOf(Color(0x99FFFFFF), Color(0x00FFFFFF)), radius = S(50f)), S(42f), Offset(X(60f), Y(50f)))
+                drawCircle(Color(0xFFFFE36B), S(4f), Offset(X(315f), Y(44f)))
+                drawCircle(Color(0xFFFFF1A8), S(2f), Offset(X(280f), Y(70f)))
+                drawRect(Color(0xFF5DA24F), Offset(X(0f), Y(232f)), Size(S(360f), S(68f)))
+                for (i in 0..5) {
+                    val tx = 10f + i * 68f
+                    drawCircle(Color(0xFF2B754D), S(34f), Offset(X(tx), Y(195f)))
+                    drawCircle(Color(0xFF55A961), S(27f), Offset(X(tx + 25f), Y(181f)))
+                    drawRect(Color(0xFF70492D), Offset(X(tx + 10f), Y(185f)), Size(S(9f), S(65f)))
                 }
             }
             2 -> {
-                drawCircle(Color(0xFFFFE4A6),S(28f),Offset(X(285f),Y(48f)))
-                drawCircle(Color(0xFFFFB17A),S(8f),Offset(X(55f),Y(55f)))
-                drawCircle(Color(0xFFFFB17A),S(7f),Offset(X(88f),Y(70f)))
-                drawRect(Color(0xFF80513D),Offset(X(0f),Y(232f)),Size(S(360f),S(68f)))
-                for(i in 0..3) drawCircle(Color(0xFF9B5B43),S(36f),Offset(X(25f+i*95f),Y(215f)))
+                drawCircle(Brush.radialGradient(listOf(Color(0xFFFFF0C0), Color(0x00FFF0C0)), radius = S(38f)), S(28f), Offset(X(285f), Y(48f)))
+                drawCircle(Color(0xFFFFB17A), S(8f), Offset(X(55f), Y(55f)))
+                drawCircle(Color(0xFFFFB17A), S(7f), Offset(X(88f), Y(70f)))
+                drawRect(Color(0xFF7D4F3D), Offset(X(0f), Y(232f)), Size(S(360f), S(68f)))
+                for (i in 0..3) {
+                    drawCircle(Color(0xFF8F5441), S(36f), Offset(X(25f + i * 95f), Y(215f)))
+                    drawCircle(Color(0xFFAA654B), S(25f), Offset(X(17f + i * 95f), Y(205f)))
+                }
             }
             3 -> {
-                drawCircle(Color(0xFFB8F1C1),S(45f),Offset(X(50f),Y(50f)))
-                drawCircle(Color(0xFF7ED59A),S(30f),Offset(X(90f),Y(70f)))
-                drawRect(Color(0xFF24583E),Offset(X(0f),Y(230f)),Size(S(360f),S(70f)))
-                for(i in 0..4) {
-                    val tx=15f+i*82f
-                    drawCircle(Color(0xFF173F32),S(38f),Offset(X(tx),Y(205f)))
-                    drawCircle(Color(0xFF2D7650),S(30f),Offset(X(tx+22f),Y(190f)))
-                    drawRect(Color(0xFF69452C),Offset(X(tx+12f),Y(195f)),Size(S(9f),S(55f)))
+                drawCircle(Brush.radialGradient(listOf(Color(0xA9E5FFCF), Color(0x00E5FFCF)), radius = S(60f)), S(45f), Offset(X(50f), Y(50f)))
+                drawCircle(Color(0xFF7ED59A), S(30f), Offset(X(90f), Y(70f)))
+                drawRect(Color(0xFF23573D), Offset(X(0f), Y(230f)), Size(S(360f), S(70f)))
+                for (i in 0..4) {
+                    val tx = 15f + i * 82f
+                    drawCircle(Color(0xFF153D31), S(38f), Offset(X(tx), Y(205f)))
+                    drawCircle(Color(0xFF2D7650), S(30f), Offset(X(tx + 22f), Y(190f)))
+                    drawRect(Color(0xFF69452C), Offset(X(tx + 12f), Y(195f)), Size(S(9f), S(55f)))
                 }
             }
             else -> {
-                drawCircle(Color(0xFFFFF2B5),S(31f),Offset(X(286f),Y(50f)))
-                drawCircle(Color(0xFF7560C8),S(27f),Offset(X(274f),Y(44f)))
-                for(p in listOf(25f to 40f,82f to 72f,145f to 36f,220f to 78f,320f to 35f)) {
-                    drawCircle(Color(0xFFFFE9A8),S(2.5f),Offset(X(p.first),Y(p.second)))
-                    drawCircle(Color(0xFFFFE9A8),S(1.5f),Offset(X(p.first+18f),Y(p.second+18f)))
+                drawCircle(Brush.radialGradient(listOf(Color(0xFFFFF7C6), Color(0x00FFF7C6)), radius = S(48f)), S(31f), Offset(X(286f), Y(50f)))
+                drawCircle(Color(0xFF7560C8), S(27f), Offset(X(274f), Y(44f)))
+                for (p in listOf(25f to 40f, 82f to 72f, 145f to 36f, 220f to 78f, 320f to 35f)) {
+                    drawCircle(Color(0xFFFFE9A8), S(2.5f), Offset(X(p.first), Y(p.second)))
+                    drawCircle(Color(0xFFFFE9A8), S(1.5f), Offset(X(p.first + 18f), Y(p.second + 18f)))
                 }
-                drawRect(Color(0xFF1B315E),Offset(X(0f),Y(232f)),Size(S(360f),S(68f)))
-                for(i in 0..5) drawCircle(Color(0xFF122A4A),S(30f),Offset(X(5f+i*70f),Y(220f)))
+                drawRect(Color(0xFF1B315E), Offset(X(0f), Y(232f)), Size(S(360f), S(68f)))
+                for (i in 0..5) drawCircle(Color(0xFF122A4A), S(30f), Offset(X(5f + i * 70f), Y(220f)))
             }
         }
 
-        // Animación continua: respiración, rebote, orejas y parpadeo.
-        val bob = sin(t * PI.toFloat()) * 3.5f
+        // Mascota 3D de videojuego: respiración, flotación, orejas, parpadeo y brillo.
+        val bob = sin((breath + 0.5f) * PI.toFloat()) * 2.8f + floatPhase * 0.8f
         val cx = X(180f)
-        val cy = Y(165f + bob)
-        val sc = when(stage){0->0.45f;1->0.52f;2->0.57f;3->0.60f;else->0.62f}
+        val cy = Y(164f + bob)
+        val sc = when (stage) { 0 -> 0.45f; 1 -> 0.50f; 2 -> 0.55f; 3 -> 0.59f; else -> 0.61f }
+        val sx = sc * (1f + breath * 0.018f)
+        val sy = sc * (1f - breath * 0.014f)
         val earSway = sway * sc
-        val blink = if(blinkPhase > 0.91f && blinkPhase < 0.965f) 0.18f else 1f
+        val blink = if (blinkPhase > 0.91f && blinkPhase < 0.965f) 0.16f else 1f
 
-        drawOval(Color(0x55000000),Offset(X(115f),Y(244f)),Size(S(130f + bob*2f),S(22f)))
+        // Sombra suave bajo la mascota.
+        drawOval(
+            brush = Brush.radialGradient(listOf(Color(0x66000000), Color(0x00000000)), radius = S(78f)),
+            topLeft = Offset(X(102f), Y(239f)),
+            size = Size(S(156f), S(30f))
+        )
 
-        val body = when(stage) {
-            0 -> Color(0xFFF4D9B8)
-            1 -> Color(0xFFF1E5D0)
-            2 -> Color(0xFFE4D4BC)
-            3 -> Color(0xFFD4A77E)
-            else -> Color(0xFFF3F0E8)
+        val body = when (stage) {
+            0 -> Color(0xFFF1D4B1)
+            1 -> Color(0xFFF0E4CE)
+            2 -> Color(0xFFE3D1B7)
+            3 -> Color(0xFFD0A47A)
+            else -> Color(0xFFF1EEE5)
         }
-        val shade = when(stage) {
-            0 -> Color(0xFFC28D63)
-            1 -> Color(0xFFC5B7A2)
-            2 -> Color(0xFFBCA58B)
-            3 -> Color(0xFF9E704F)
-            else -> Color(0xFFC9C3B8)
+        val bodyDark = when (stage) {
+            0 -> Color(0xFFC28C63)
+            1 -> Color(0xFFC0B39F)
+            2 -> Color(0xFFB99F83)
+            3 -> Color(0xFF986B4A)
+            else -> Color(0xFFC0BAAE)
+        }
+        val bodyLight = when (stage) {
+            0 -> Color(0xFFFFE9CC)
+            1 -> Color(0xFFFFF7E9)
+            2 -> Color(0xFFF2E5D1)
+            3 -> Color(0xFFE3BC92)
+            else -> Color(0xFFFFFCF4)
         }
 
-        // Cuerpo redondeado con sombreado.
-        drawOval(shade,Offset(cx-S(78f*sc),cy-S(4f*sc)),Size(S(156f*sc),S(145f*sc)))
-        drawOval(body,Offset(cx-S(68f*sc),cy-S(12f*sc)),Size(S(136f*sc),S(137f*sc)))
-        drawOval(Color(0xFFF8F4EA),Offset(cx-S(40f*sc),cy+S(25f*sc)),Size(S(80f*sc),S(83f*sc)))
-        drawOval(body,Offset(cx-S(87f*sc),cy+S(12f*sc)),Size(S(34f*sc),S(80f*sc)))
-        drawOval(body,Offset(cx+S(53f*sc),cy+S(12f*sc)),Size(S(34f*sc),S(80f*sc)))
-        drawOval(shade,Offset(cx-S(72f*sc),cy+S(55f*sc)),Size(S(48f*sc),S(30f*sc)))
-        drawOval(shade,Offset(cx+S(24f*sc),cy+S(55f*sc)),Size(S(48f*sc),S(30f*sc)))
-        drawOval(Color(0xFFFFB1B4),Offset(cx-S(58f*sc),cy+S(62f*sc)),Size(S(20f*sc),S(10f*sc)))
-        drawOval(Color(0xFFFFB1B4),Offset(cx+S(38f*sc),cy+S(62f*sc)),Size(S(20f*sc),S(10f*sc)))
+        fun oval3d(left: Float, top: Float, width: Float, height: Float, base: Color, dark: Color, light: Color) {
+            val c = Offset(X(left + width * 0.30f), Y(top + height * 0.27f))
+            drawOval(
+                brush = Brush.radialGradient(
+                    listOf(light, base, dark),
+                    center = c,
+                    radius = S(max(width, height) * 0.72f)
+                ),
+                topLeft = Offset(X(left), Y(top)),
+                size = Size(S(width), S(height))
+            )
+        }
+
+        // Cuerpo volumétrico.
+        oval3d(112f, 160f, 136f * sx, 134f * sy, body, bodyDark, bodyLight)
+        oval3d(140f, 188f, 80f * sx, 78f * sy, Color(0xFFF7F2E7), Color(0xFFD9D0C1), Color.White)
+
+        // Brazos/patas con volumen.
+        oval3d(92f, 177f, 34f * sx, 76f * sy, body, bodyDark, bodyLight)
+        oval3d(234f, 177f, 34f * sx, 76f * sy, body, bodyDark, bodyLight)
+        oval3d(108f, 222f, 46f * sx, 29f * sy, bodyDark, bodyDark, bodyLight)
+        oval3d(206f, 222f, 46f * sx, 29f * sy, bodyDark, bodyDark, bodyLight)
+        drawOval(Color(0xFFFFA8AD), Offset(X(123f), Y(232f + bob)), Size(S(20f * sx), S(10f * sy)))
+        drawOval(Color(0xFFFFA8AD), Offset(X(217f), Y(232f + bob)), Size(S(20f * sx), S(10f * sy)))
 
         // Cabeza.
-        drawOval(shade,Offset(cx-S(67f*sc),cy-S(112f*sc)),Size(S(134f*sc),S(128f*sc)))
-        drawOval(body,Offset(cx-S(58f*sc),cy-S(120f*sc)),Size(S(116f*sc),S(118f*sc)))
+        oval3d(122f, 52f + bob, 116f * sx, 118f * sy, body, bodyDark, bodyLight)
 
-        // Orejas con balanceo.
-        withTransform({rotate(earSway,Offset(cx-S(34f*sc),cy-S(160f*sc)))}) {
-            drawOval(shade,Offset(cx-S(58f*sc),cy-S(220f*sc)),Size(S(48f*sc),S(118f*sc)))
-            drawOval(body,Offset(cx-S(51f*sc),cy-S(213f*sc)),Size(S(34f*sc),S(103f*sc)))
-            drawOval(Color(0xFFFF9DA4),Offset(cx-S(43f*sc),cy-S(204f*sc)),Size(S(18f*sc),S(86f*sc)))
+        // Orejas 3D articuladas.
+        withTransform({ rotate(earSway, Offset(cx - S(34f * sx), cy - S(160f * sy))) }) {
+            oval3d(122f, 4f + bob, 46f * sx, 112f * sy, bodyDark, bodyDark, bodyLight)
+            drawOval(Color(0xFFFFA2A8), Offset(X(134f), Y(13f + bob)), Size(S(20f * sx), S(88f * sy)))
+            drawOval(Color(0x66FFFFFF), Offset(X(138f), Y(16f + bob)), Size(S(6f * sx), S(65f * sy)))
         }
-        withTransform({rotate(-earSway,Offset(cx+S(34f*sc),cy-S(160f*sc)))}) {
-            drawOval(shade,Offset(cx+S(10f*sc),cy-S(220f*sc)),Size(S(48f*sc),S(118f*sc)))
-            drawOval(body,Offset(cx+S(17f*sc),cy-S(213f*sc)),Size(S(34f*sc),S(103f*sc)))
-            drawOval(Color(0xFFFF9DA4),Offset(cx+S(25f*sc),cy-S(204f*sc)),Size(S(18f*sc),S(86f*sc)))
+        withTransform({ rotate(-earSway, Offset(cx + S(34f * sx), cy - S(160f * sy))) }) {
+            oval3d(192f, 4f + bob, 46f * sx, 112f * sy, bodyDark, bodyDark, bodyLight)
+            drawOval(Color(0xFFFFA2A8), Offset(X(204f), Y(13f + bob)), Size(S(20f * sx), S(88f * sy)))
+            drawOval(Color(0x66FFFFFF), Offset(X(208f), Y(16f + bob)), Size(S(6f * sx), S(65f * sy)))
         }
 
-        // Cara expresiva.
-        drawOval(Color(0xFFFDFBF5),Offset(cx-S(43f*sc),cy-S(65f*sc)),Size(S(86f*sc),S(62f*sc)))
-        drawCircle(Color(0xFFFFC7C7),S(9f*sc),Offset(cx-S(45f*sc),cy-S(43f*sc)))
-        drawCircle(Color(0xFFFFC7C7),S(9f*sc),Offset(cx+S(45f*sc),cy-S(43f*sc)))
-        drawOval(Color(0xFF2A2422),Offset(cx-S(37f*sc),cy-S(85f*sc)),Size(S(24f*sc),S(24f*sc*blink)))
-        drawOval(Color(0xFF2A2422),Offset(cx+S(13f*sc),cy-S(85f*sc)),Size(S(24f*sc),S(24f*sc*blink)))
-        if(blink > 0.5f) {
-            drawCircle(Color.White,S(4f*sc),Offset(cx-S(29f*sc),cy-S(80f*sc)))
-            drawCircle(Color.White,S(4f*sc),Offset(cx+S(21f*sc),cy-S(80f*sc)))
+        // Mejillas y hocico con iluminación suave.
+        drawCircle(Color(0xFFFFC3C7), S(9f * sx), Offset(X(137f), Y(120f + bob)))
+        drawCircle(Color(0xFFFFC3C7), S(9f * sx), Offset(X(223f), Y(120f + bob)))
+        oval3d(137f, 102f + bob, 86f * sx, 60f * sy, Color(0xFFFDFBF5), Color(0xFFE2DDD3), Color.White)
+
+        // Ojos grandes, expresivos y con reflejo.
+        drawOval(
+            brush = Brush.radialGradient(listOf(Color.White, Color(0xFFF4F4F0), Color(0xFF24201F))),
+            topLeft = Offset(X(145f), Y(88f + bob)),
+            size = Size(S(25f * sx), S(27f * sy * blink))
+        )
+        drawOval(
+            brush = Brush.radialGradient(listOf(Color.White, Color(0xFFF4F4F0), Color(0xFF24201F))),
+            topLeft = Offset(X(190f), Y(88f + bob)),
+            size = Size(S(25f * sx), S(27f * sy * blink))
+        )
+        if (blink > 0.5f) {
+            drawCircle(Color.White, S(5f * sx), Offset(X(152f), Y(94f + bob)))
+            drawCircle(Color.White, S(5f * sx), Offset(X(197f), Y(94f + bob)))
+            drawCircle(Color(0xAAFFFFFF), S(2f * sx), Offset(X(158f), Y(102f + bob)))
+            drawCircle(Color(0xAAFFFFFF), S(2f * sx), Offset(X(203f), Y(102f + bob)))
         }
-        drawOval(Color(0xFFFF8C8C),Offset(cx-S(10f*sc),cy-S(52f*sc)),Size(S(20f*sc),S(13f*sc)))
-        drawLine(Color(0xFF352722),Offset(cx,cy-S(40f*sc)),Offset(cx-S(11f*sc),cy-S(30f*sc)),S(3f))
-        drawLine(Color(0xFF352722),Offset(cx,cy-S(40f*sc)),Offset(cx+S(11f*sc),cy-S(30f*sc)),S(3f))
-        for(dy in listOf(-6f,6f)) {
-            drawLine(Color(0xFF77736E),Offset(cx-S(45f*sc),cy+S(dy)),Offset(cx-S(82f*sc),cy+S(dy-8f)),S(2f))
-            drawLine(Color(0xFF77736E),Offset(cx+S(45f*sc),cy+S(dy)),Offset(cx+S(82f*sc),cy+S(dy-8f)),S(2f))
+
+        // Nariz, boca y bigotes.
+        drawOval(Color(0xFFFF8D91), Offset(X(170f), Y(113f + bob)), Size(S(20f * sx), S(13f * sy)))
+        drawLine(Color(0xFF3B2B28), Offset(X(180f), Y(124f + bob)), Offset(X(169f), Y(134f + bob)), S(3f))
+        drawLine(Color(0xFF3B2B28), Offset(X(180f), Y(124f + bob)), Offset(X(191f), Y(134f + bob)), S(3f))
+        for (dy in listOf(114f, 124f)) {
+            drawLine(Color(0xFF77736E), Offset(X(139f), Y(dy + bob)), Offset(X(105f), Y(dy - 7f + bob)), S(2f))
+            drawLine(Color(0xFF77736E), Offset(X(221f), Y(dy + bob)), Offset(X(255f), Y(dy - 7f + bob)), S(2f))
         }
-        if(stage >= 3) {
-            drawCircle(Color(0xFFFFD95A),S(5f),Offset(cx-S(92f),cy-S(105f)))
-            drawCircle(Color(0xFFFFD95A),S(5f),Offset(cx+S(92f),cy-S(105f)))
+
+        // Brillo ambiental de personaje y partículas de evolución.
+        if (stage >= 3) {
+            drawCircle(Color(0xFFFFD95A), S(5f), Offset(X(91f), Y(74f + bob)))
+            drawCircle(Color(0xFFFFD95A), S(5f), Offset(X(269f), Y(74f + bob)))
         }
-        if(stage == 4) {
-            drawCircle(Color(0xFF8D7BFF),S(7f),Offset(cx-S(104f),cy-S(70f)))
-            drawCircle(Color(0xFF8D7BFF),S(7f),Offset(cx+S(104f),cy-S(70f)))
+        if (stage == 4) {
+            drawCircle(Color(0xFF9B8AFF), S(7f), Offset(X(90f), Y(110f + bob)))
+            drawCircle(Color(0xFF9B8AFF), S(7f), Offset(X(270f), Y(110f + bob)))
+            drawCircle(Color(0xFFFFE7A0), S(2.5f), Offset(X(110f), Y(55f + bob)))
+            drawCircle(Color(0xFFFFE7A0), S(2.5f), Offset(X(250f), Y(52f + bob)))
         }
-        if(health < 30) drawCircle(Color(0xFFFFD54F),S(9f),Offset(cx+S(92f),cy-S(120f)))
+        if (health < 30) {
+            drawCircle(Color(0xFFFFD54F), S(9f), Offset(X(272f), Y(34f + bob)))
+        }
     }
 }
+
 @Composable
 private fun Stat(label: String, value: Int) {
     Column(Modifier.fillMaxWidth().padding(vertical = 3.dp)) {
