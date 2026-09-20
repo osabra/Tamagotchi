@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,7 +56,10 @@ class MainActivity : ComponentActivity() {
 private fun TamagotchiApp(store: PetStore) {
     var pet by remember { mutableStateOf(store.load()) }
     var message by remember { mutableStateOf("¡Hola! Soy tu mascota") }
-    fun update(next: PetState, text: String) { pet=next; store.save(next); message=text }
+    var shopOpen by remember { mutableStateOf(false) }
+    var gameOpen by remember { mutableStateOf(false) }
+    var secret by remember { mutableIntStateOf(Random.nextInt(1,4)) }
+    fun update(next: PetState, text: String) { var n=next; if(n.xp>=100) n=n.copy(level=n.level+1,xp=n.xp-100); pet=n; store.save(n); message=text }
     LaunchedEffect(Unit) { while(true){ delay(60_000); update(pet.copy(hunger=max(0,pet.hunger-2), happiness=max(0,pet.happiness-1), energy=max(0,pet.energy-1), hygiene=max(0,pet.hygiene-1)), "Necesito cuidados…") } }
     MaterialTheme {
         Surface(Modifier.fillMaxSize(), Color(0xFFFFF7E8)) {
@@ -62,21 +67,9 @@ private fun TamagotchiApp(store: PetStore) {
                 Text("Mi Mascota", fontSize=30.sp, fontWeight=FontWeight.Bold)
                 Text("Nivel " + pet.level + "   🪙 " + pet.coins, fontSize=18.sp)
                 Spacer(Modifier.height(10.dp))
-                val emoji = when {
-                    pet.health < 30 -> "🤒"
-                    pet.level < 3 -> "🐣"
-                    pet.level < 6 -> "🐥"
-                    pet.level < 10 -> "🐰"
-                    pet.level < 15 -> "🐼"
-                    else -> "🐲"
-                }
-                Box(Modifier.size(220.dp).background(Color(0xFFFFDFA8), RoundedCornerShape(32.dp)), Alignment.Center) {
-                    Column(horizontalAlignment=Alignment.CenterHorizontally) {
-                        Text(emoji, fontSize=92.sp)
-                        Text(message)
-                        Text("❤️ Salud " + pet.health + "%", fontSize=13.sp)
-                    }
-                }
+                PetScene(pet.level, pet.health)
+                Text(message, fontSize=17.sp, fontWeight=FontWeight.Medium)
+                Text("❤️ Salud " + pet.health + "%", fontSize=13.sp)
                 Spacer(Modifier.height(12.dp))
                 Stat("🍎 Hambre",pet.hunger)
                 Stat("❤️ Felicidad",pet.happiness)
@@ -99,7 +92,7 @@ private fun TamagotchiApp(store: PetStore) {
                 Spacer(Modifier.height(8.dp))
                 Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
                     Button(onClick={shopOpen=true}) { Text("🛒 Tienda") }
-                    Button(onClick={gameOpen=true}) { Text("🎮 Juego") }
+                    Button(onClick={secret=Random.nextInt(1,4); gameOpen=true}) { Text("🎮 Juego") }
                 }
                 Text("🍎 " + pet.food + "   🎾 " + pet.toys + "   💊 " + pet.medicine, fontSize=14.sp)
                 Text("🏆 Partidas " + pet.games + " · Victorias " + pet.wins, fontSize=13.sp)
@@ -139,6 +132,66 @@ private fun TamagotchiApp(store: PetStore) {
             }
         }
     }
+@Composable
+private fun PetScene(level:Int, health:Int) {
+    val stage=when { level<3->0; level<6->1; level<10->2; level<15->3; else->4 }
+    Canvas(Modifier.fillMaxWidth().height(285.dp)) {
+        val w=size.width
+        val h=size.height
+        val bg=when(stage) {
+            0->Brush.verticalGradient(listOf(Color(0xFF6D4327),Color(0xFFB87842)))
+            1->Brush.verticalGradient(listOf(Color(0xFF79CFFF),Color(0xFF63AD58)))
+            2->Brush.verticalGradient(listOf(Color(0xFFFFD7A1),Color(0xFFB66F4F)))
+            3->Brush.verticalGradient(listOf(Color(0xFF75C96A),Color(0xFF286D47)))
+            else->Brush.verticalGradient(listOf(Color(0xFF8871D2),Color(0xFF263A77)))
+        }
+        drawRoundRect(bg,Offset.Zero,Size(w,h),28.dp.toPx())
+        if(stage==1||stage==3) for(i in 0..4) {
+            val x=70f+i*(w-140f)/4f
+            drawCircle(Color(0xFF3C7C43),38f,Offset(x,62f))
+            drawRect(Color(0xFF7A4A2B),Offset(x-7f,72f),Size(14f,75f))
+        }
+        if(stage==2) {
+            drawRect(Color(0xFF8B5A3C),Offset(0f,h-82f),Size(w,82f))
+            drawRoundRect(Color(0xFFF0D0A0),Offset(w/2-130f,h-165f),Size(260f,90f),18.dp.toPx())
+        }
+        if(stage==0) {
+            drawRect(Color(0xFF8B5A2B),Offset(0f,h-82f),Size(w,82f))
+            drawOval(Color(0xFFE9D0A2),Offset(w/2-70f,h-145f),Size(140f,95f))
+        }
+        val cx=w/2
+        val cy=h*0.59f
+        val scale=when(stage){0->0.72f;1->0.78f;2->0.90f;3->1f;else->1.04f}
+        val fur=when(stage){1->Color(0xFFF0E2C8);2->Color(0xFFD7C1A2);3->Color(0xFF9A633D);else->Color(0xFFF3EFE7)}
+        if(stage==0) {
+            drawOval(Color(0xFFE9D6A8),Offset(cx-48f,cy-55f),Size(96f,120f))
+            drawOval(Color(0xFFB28B55),Offset(cx-37f,cy-45f),Size(74f,100f))
+            drawOval(Color(0xFFFFF2D2),Offset(cx-23f,cy+5f),Size(46f,42f))
+        } else {
+            drawOval(fur,Offset(cx-72f*scale,cy-5f),Size(144f*scale,150f*scale))
+            drawOval(fur,Offset(cx-58f*scale,cy-105f*scale),Size(116f*scale,120f*scale))
+            drawOval(fur,Offset(cx-52f*scale,cy-200f*scale),Size(34f*scale,120f*scale))
+            drawOval(fur,Offset(cx+18f*scale,cy-200f*scale),Size(34f*scale,120f*scale))
+            drawOval(Color(0xFFFF9A98),Offset(cx-45f*scale,cy-188f*scale),Size(18f*scale,86f*scale))
+            drawOval(Color(0xFFFF9A98),Offset(cx+25f*scale,cy-188f*scale),Size(18f*scale,86f*scale))
+            drawOval(Color.White,Offset(cx-43f*scale,cy-95f*scale),Size(34f*scale,44f*scale))
+            drawOval(Color.White,Offset(cx+9f*scale,cy-95f*scale),Size(34f*scale,44f*scale))
+            drawCircle(Color(0xFF2B211C),10f*scale,Offset(cx-25f*scale,cy-75f*scale))
+            drawCircle(Color(0xFF2B211C),10f*scale,Offset(cx+25f*scale,cy-75f*scale))
+            drawCircle(Color.White,3.5f*scale,Offset(cx-21f*scale,cy-79f*scale))
+            drawCircle(Color.White,3.5f*scale,Offset(cx+29f*scale,cy-79f*scale))
+            drawOval(Color(0xFFFF8D86),Offset(cx-8f*scale,cy-52f*scale),Size(16f*scale,11f*scale))
+            drawLine(Color(0xFF3A2A24),Offset(cx,cy-42f*scale),Offset(cx-10f*scale,cy-32f*scale),4f*scale)
+            drawLine(Color(0xFF3A2A24),Offset(cx,cy-42f*scale),Offset(cx+10f*scale,cy-32f*scale),4f*scale)
+            drawCircle(Color(0xFFF4F1EA),9f*scale,Offset(cx-61f*scale,cy+116f*scale))
+            drawCircle(Color(0xFFF4F1EA),9f*scale,Offset(cx+61f*scale,cy+116f*scale))
+            drawCircle(Color(0xFFFFB0B0),8f*scale,Offset(cx-58f*scale,cy+113f*scale))
+            drawCircle(Color(0xFFFFB0B0),8f*scale,Offset(cx+58f*scale,cy+113f*scale))
+        }
+        if(health<30) drawCircle(Color(0xFFFFD54F),8f,Offset(cx+95f,cy-125f))
+    }
+}
+
 @Composable
 private fun Stat(label: String, value: Int) {
     Column(
