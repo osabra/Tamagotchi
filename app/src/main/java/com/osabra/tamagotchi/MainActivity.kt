@@ -248,8 +248,6 @@ private fun PetScene(level: Int, health: Int) {
             clearOptions.clear = true
             clearOptions.clearColor = floatArrayOf(0f, 0f, 0f, 0f)
         }
-        val environmentLoader = rememberEnvironmentLoader(engine)
-        val environment = rememberEnvironment(environmentLoader, isOpaque = false)
         val modelInstance = rememberModelInstance(modelLoader, "models/conejitos_pixar.glb")
         val visibleRange = when {
             level <= 1 -> 0 until 20
@@ -265,16 +263,18 @@ private fun PetScene(level: Int, health: Int) {
             engine = engine,
             modelLoader = modelLoader,
             renderer = renderer,
-            environment = environment,
-            autoCenterContent = true,
-            autoFitContent = true,
-            framingPadding = 0.08f,
             cameraManipulator = null
         ) {
             modelInstance?.let { instance ->
                 ModelNode(
                     modelInstance = instance,
-                    scaleToUnits = 1.0f,
+                    scaleToUnits = 2.5f,
+                    position = when (stage) {
+                        0 -> Position(x = 0.94f)
+                        1 -> Position(x = 0.31f)
+                        2 -> Position(x = -0.31f)
+                        else -> Position(x = -0.94f)
+                    },
                     autoAnimate = true,
                     animationLoop = true,
                     animationSpeed = 1.0f,
