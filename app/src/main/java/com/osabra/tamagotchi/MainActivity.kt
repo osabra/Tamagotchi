@@ -41,6 +41,7 @@ import io.github.sceneview.rememberCameraManipulator
 import io.github.sceneview.rememberEngine
 import io.github.sceneview.rememberModelInstance
 import io.github.sceneview.rememberModelLoader
+import io.github.sceneview.rememberRenderer
 
 private data class PetState(
     val hunger: Int = 80, val happiness: Int = 80, val energy: Int = 80, val hygiene: Int = 80,
@@ -243,7 +244,17 @@ private fun PetScene(level: Int, health: Int) {
         // animations are played automatically by ModelNode.
         val engine = rememberEngine()
         val modelLoader = rememberModelLoader(engine)
+        val renderer = rememberRenderer(engine).apply {
+            clearOptions.clear = true
+            clearOptions.clearColor = floatArrayOf(0f, 0f, 0f, 0f)
+        }
         val modelInstance = rememberModelInstance(modelLoader, "models/conejitos_pixar.glb")
+        val visibleRange = when {
+            level <= 1 -> 0 until 20
+            level == 2 -> 20 until 40
+            level == 3 -> 40 until 60
+            else -> 60 until 80
+        }
 
         SceneView(
             modifier = Modifier.fillMaxSize(),
@@ -251,6 +262,7 @@ private fun PetScene(level: Int, health: Int) {
             isOpaque = false,
             engine = engine,
             modelLoader = modelLoader,
+            renderer = renderer,
             cameraManipulator = null
         ) {
             modelInstance?.let { instance ->
@@ -259,7 +271,12 @@ private fun PetScene(level: Int, health: Int) {
                     scaleToUnits = 1.0f,
                     autoAnimate = true,
                     animationLoop = true,
-                    animationSpeed = 1.0f
+                    animationSpeed = 1.0f,
+                    apply = {
+                        renderableNodes.forEachIndexed { index, node ->
+                            node.isVisible = index in visibleRange
+                        }
+                    }
                 )
             }
         }
