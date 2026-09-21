@@ -247,6 +247,8 @@ private fun PetScene(level: Int, health: Int) {
 
         SceneView(
             modifier = Modifier.fillMaxSize(),
+            surfaceType = SurfaceType.TextureSurface,
+            isOpaque = false,
             engine = engine,
             modelLoader = modelLoader,
             cameraManipulator = null
