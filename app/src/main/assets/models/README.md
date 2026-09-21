@@ -1,11 +1,9 @@
 # Modelos 3D de las mascotas
 
-Coloca aquí los modelos exportados para la APK.
+La APK usa directamente el modelo:
 
-- `conejito_nivel_1.glb`
-- `conejito_nivel_2.glb`
-- `conejito_nivel_3.glb`
-- `conejito_nivel_4.glb`
-- etc.
+- `conejitos_pixar.glb` — contiene los 4 conejitos en un único archivo.
 
-El archivo `.blend` de Blender puede guardarse aquí como fuente, pero la APK debería usar preferentemente `.glb`/`.gltf` para cargar el modelo 3D en Android.
+La pantalla de la mascota carga este GLB con SceneView/Filament y reproduce las animaciones glTF incluidas en el modelo. El fondo cambia por etapas según el nivel.
+
+Si en el futuro se quieren seleccionar los 4 conejitos de forma independiente, lo ideal es exportarlos como cuatro GLB separados o preparar el archivo con variantes/animaciones identificables.
