@@ -32,6 +32,15 @@ import kotlin.math.max
 import kotlin.math.sin
 import kotlin.math.PI
 import kotlin.random.Random
+import io.github.sceneview.SceneView
+import io.github.sceneview.FrameRatePolicy
+import io.github.sceneview.SurfaceType
+import io.github.sceneview.math.Position
+import io.github.sceneview.node.ModelNode
+import io.github.sceneview.rememberCameraManipulator
+import io.github.sceneview.rememberEngine
+import io.github.sceneview.rememberModelInstance
+import io.github.sceneview.rememberModelLoader
 
 private data class PetState(
     val hunger: Int = 80, val happiness: Int = 80, val energy: Int = 80, val hygiene: Int = 80,
@@ -144,36 +153,6 @@ private fun TamagotchiApp(store: PetStore) {
 
 @Composable
 private fun PetScene(level: Int, health: Int) {
-    val transition = rememberInfiniteTransition(label = "pet3d")
-    val breath by transition.animateFloat(
-        initialValue = 0f, targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1800, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ), label = "breath"
-    )
-    val sway by transition.animateFloat(
-        initialValue = -2.8f, targetValue = 2.8f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1400, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ), label = "earSway"
-    )
-    val blinkPhase by transition.animateFloat(
-        initialValue = 0f, targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(3400, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ), label = "blink"
-    )
-    val floatPhase by transition.animateFloat(
-        initialValue = -1f, targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2400, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ), label = "float"
-    )
-
     val stage = when {
         level < 3 -> 0
         level < 6 -> 1
@@ -182,234 +161,128 @@ private fun PetScene(level: Int, health: Int) {
         else -> 4
     }
 
-    Canvas(Modifier.fillMaxWidth().height(300.dp)) {
-        val w = size.width
-        val h = size.height
-        val u = minOf(w / 360f, h / 300f)
-        fun X(v: Float) = v * u + (w - 360f * u) / 2f
-        fun Y(v: Float) = v * u + (h - 300f * u) / 2f
-        fun S(v: Float) = v * u
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp)
+            .clip(RoundedCornerShape(30.dp))
+    ) {
+        // Fondo evolutivo de la mascota: mantiene el estilo de la pantalla actual
+        // y cambia de ambiente a medida que sube de nivel.
+        Canvas(Modifier.fillMaxSize()) {
+            val w = size.width
+            val h = size.height
+            val sky = when (stage) {
+                0 -> Brush.verticalGradient(listOf(Color(0xFFFFDDA9), Color(0xFFE99A6D)))
+                1 -> Brush.verticalGradient(listOf(Color(0xFF72D1FF), Color(0xFF68B96D)))
+                2 -> Brush.verticalGradient(listOf(Color(0xFFFFC88F), Color(0xFFB96A4F)))
+                3 -> Brush.verticalGradient(listOf(Color(0xFF61C27D), Color(0xFF1F6047)))
+                else -> Brush.verticalGradient(listOf(Color(0xFF7865D0), Color(0xFF1C336B)))
+            }
+            drawRect(sky)
 
-        val sky = when (stage) {
-            0 -> Brush.verticalGradient(listOf(Color(0xFFFFDDA9), Color(0xFFE99A6D)))
-            1 -> Brush.verticalGradient(listOf(Color(0xFF72D1FF), Color(0xFF68B96D)))
-            2 -> Brush.verticalGradient(listOf(Color(0xFFFFC88F), Color(0xFFB96A4F)))
-            3 -> Brush.verticalGradient(listOf(Color(0xFF61C27D), Color(0xFF1F6047)))
-            else -> Brush.verticalGradient(listOf(Color(0xFF7865D0), Color(0xFF1C336B)))
-        }
-        drawRoundRect(
-            brush = sky,
-            topLeft = Offset(X(0f), Y(0f)),
-            size = Size(S(360f), S(300f)),
-            cornerRadius = CornerRadius(S(30f), S(30f))
-        )
-
-        // Fondo evolutivo: más profundidad, luz y pequeños detalles en cada etapa.
-        when (stage) {
-            0 -> {
-                drawCircle(Brush.radialGradient(listOf(Color(0xFFFFF1BD), Color(0x00FFF1BD)), radius = S(42f)), S(31f), Offset(X(285f), Y(50f)))
-                drawCircle(Color(0xFFFFB47D), S(8f), Offset(X(55f), Y(55f)))
-                drawCircle(Color(0xFFFFB47D), S(6f), Offset(X(90f), Y(72f)))
-                drawRect(Color(0xFF8F5B46), Offset(X(0f), Y(232f)), Size(S(360f), S(68f)))
-                for (i in 0..4) {
-                    drawCircle(Color(0xFFB56E50), S(34f), Offset(X(20f + i * 82f), Y(215f)))
-                    drawCircle(Color(0xFFCA805C), S(24f), Offset(X(13f + i * 82f), Y(205f)))
+            when (stage) {
+                0 -> {
+                    drawCircle(Color(0xFFFFF0BE), h * 0.16f, Offset(w * 0.79f, h * 0.17f))
+                    drawCircle(Color(0xFFFFB47D), h * 0.035f, Offset(w * 0.15f, h * 0.20f))
+                    drawCircle(Color(0xFFFFB47D), h * 0.025f, Offset(w * 0.25f, h * 0.28f))
+                    drawRect(Color(0xFF8F5B46), Offset(0f, h * 0.77f), Size(w, h * 0.23f))
+                    for (i in 0..4) {
+                        val x = w * (0.06f + i * 0.23f)
+                        drawCircle(Color(0xFFB56E50), h * 0.12f, Offset(x, h * 0.72f))
+                        drawCircle(Color(0xFFCA805C), h * 0.08f, Offset(x - h * 0.02f, h * 0.68f))
+                    }
                 }
-            }
-            1 -> {
-                // Jardín luminoso: más profundidad y acabado de videojuego 3D.
-                drawCircle(Brush.radialGradient(listOf(Color(0xCCFFF7C2), Color(0x00FFF7C2)), radius = S(62f)), S(48f), Offset(X(58f), Y(50f)))
-                drawCircle(Color(0xFFFFE36B), S(7f), Offset(X(58f), Y(48f)))
-                // Nubes suaves.
-                drawCircle(Color(0xBFFFFFFF), S(18f), Offset(X(128f), Y(38f)))
-                drawCircle(Color(0xBFFFFFFF), S(24f), Offset(X(151f), Y(39f)))
-                drawCircle(Color(0xBFFFFFFF), S(17f), Offset(X(176f), Y(42f)))
-                drawCircle(Color(0xBFFFFFFF), S(15f), Offset(X(286f), Y(63f)))
-                drawCircle(Color(0xBFFFFFFF), S(21f), Offset(X(307f), Y(62f)))
-                // Línea de fondo y colinas.
-                drawOval(Color(0xFF76C86A), Offset(X(-45f), Y(145f)), Size(S(230f), S(125f)))
-                drawOval(Color(0xFF63B85F), Offset(X(175f), Y(142f)), Size(S(240f), S(128f)))
-                // Árboles con varias capas para dar volumen.
-                for (i in 0..5) {
-                    val tx = 8f + i * 68f
-                    drawRect(Color(0xFF765034), Offset(X(tx + 18f), Y(187f)), Size(S(10f), S(62f)))
-                    drawCircle(Color(0xFF276B4D), S(34f), Offset(X(tx + 18f), Y(191f)))
-                    drawCircle(Color(0xFF3D8E55), S(29f), Offset(X(tx + 38f), Y(178f)))
-                    drawCircle(Color(0xFF58AA5E), S(21f), Offset(X(tx + 28f), Y(164f)))
+                1 -> {
+                    drawCircle(Color(0x99FFF7C2), h * 0.20f, Offset(w * 0.15f, h * 0.18f))
+                    drawCircle(Color(0xFFFFE36B), h * 0.028f, Offset(w * 0.15f, h * 0.17f))
+                    drawCircle(Color(0xBFFFFFFF), h * 0.08f, Offset(w * 0.42f, h * 0.13f))
+                    drawCircle(Color(0xBFFFFFFF), h * 0.10f, Offset(w * 0.50f, h * 0.13f))
+                    drawCircle(Color(0xBFFFFFFF), h * 0.07f, Offset(w * 0.58f, h * 0.14f))
+                    drawOval(Color(0xFF76C86A), Offset(-w * 0.12f, h * 0.45f), Size(w * 0.62f, h * 0.42f))
+                    drawOval(Color(0xFF63B85F), Offset(w * 0.48f, h * 0.44f), Size(w * 0.68f, h * 0.43f))
+                    drawRect(Color(0xFF5FA94F), Offset(0f, h * 0.75f), Size(w, h * 0.25f))
+                    for (i in 0..5) {
+                        val x = w * (0.06f + i * 0.19f)
+                        drawRect(Color(0xFF765034), Offset(x, h * 0.62f), Size(w * 0.028f, h * 0.18f))
+                        drawCircle(Color(0xFF276B4D), h * 0.115f, Offset(x, h * 0.64f))
+                        drawCircle(Color(0xFF3D8E55), h * 0.10f, Offset(x + w * 0.055f, h * 0.60f))
+                        drawCircle(Color(0xFF58AA5E), h * 0.07f, Offset(x + w * 0.03f, h * 0.54f))
+                    }
                 }
-                // Césped y flores.
-                drawRect(Color(0xFF5FA94F), Offset(X(0f), Y(226f)), Size(S(360f), S(74f)))
-                for (x in listOf(22f, 72f, 120f, 252f, 305f, 340f)) {
-                    drawCircle(Color(0xFFFFF2D0), S(4f), Offset(X(x), Y(246f)))
-                    drawCircle(Color(0xFFFFA7A7), S(2.2f), Offset(X(x - 3f), Y(243f)))
-                    drawCircle(Color(0xFFFFA7A7), S(2.2f), Offset(X(x + 3f), Y(243f)))
+                2 -> {
+                    drawCircle(Color(0xFFFFF0C0), h * 0.12f, Offset(w * 0.79f, h * 0.16f))
+                    drawCircle(Color(0xFFFFB17A), h * 0.035f, Offset(w * 0.15f, h * 0.20f))
+                    drawCircle(Color(0xFFFFB17A), h * 0.03f, Offset(w * 0.25f, h * 0.27f))
+                    drawRect(Color(0xFF7D4F3D), Offset(0f, h * 0.77f), Size(w, h * 0.23f))
+                    for (i in 0..3) {
+                        val x = w * (0.07f + i * 0.29f)
+                        drawCircle(Color(0xFF8F5441), h * 0.12f, Offset(x, h * 0.72f))
+                        drawCircle(Color(0xFFAA654B), h * 0.08f, Offset(x - h * 0.02f, h * 0.68f))
+                    }
                 }
-                // Valla discreta detrás de la mascota.
-                for (x in listOf(70f, 120f, 240f, 290f)) {
-                    drawRoundRect(Color(0xFFB98255), Offset(X(x), Y(205f)), Size(S(28f), S(38f)), CornerRadius(S(4f), S(4f)))
-                    drawRoundRect(Color(0xFFD19A68), Offset(X(x + 2f), Y(207f)), Size(S(24f), S(34f)), CornerRadius(S(3f), S(3f)))
+                3 -> {
+                    drawCircle(Color(0x88E5FFCF), h * 0.17f, Offset(w * 0.14f, h * 0.18f))
+                    drawCircle(Color(0xFF7ED59A), h * 0.10f, Offset(w * 0.25f, h * 0.23f))
+                    drawRect(Color(0xFF23573D), Offset(0f, h * 0.77f), Size(w, h * 0.23f))
+                    for (i in 0..4) {
+                        val x = w * (0.03f + i * 0.24f)
+                        drawCircle(Color(0xFF153D31), h * 0.125f, Offset(x, h * 0.69f))
+                        drawCircle(Color(0xFF2D7650), h * 0.10f, Offset(x + w * 0.06f, h * 0.64f))
+                        drawRect(Color(0xFF69452C), Offset(x + w * 0.035f, h * 0.65f), Size(w * 0.025f, h * 0.18f))
+                    }
                 }
-            }
-            2 -> {
-                drawCircle(Brush.radialGradient(listOf(Color(0xFFFFF0C0), Color(0x00FFF0C0)), radius = S(38f)), S(28f), Offset(X(285f), Y(48f)))
-                drawCircle(Color(0xFFFFB17A), S(8f), Offset(X(55f), Y(55f)))
-                drawCircle(Color(0xFFFFB17A), S(7f), Offset(X(88f), Y(70f)))
-                drawRect(Color(0xFF7D4F3D), Offset(X(0f), Y(232f)), Size(S(360f), S(68f)))
-                for (i in 0..3) {
-                    drawCircle(Color(0xFF8F5441), S(36f), Offset(X(25f + i * 95f), Y(215f)))
-                    drawCircle(Color(0xFFAA654B), S(25f), Offset(X(17f + i * 95f), Y(205f)))
+                else -> {
+                    drawCircle(Color(0xFFFFF7C6), h * 0.11f, Offset(w * 0.80f, h * 0.17f))
+                    drawCircle(Color(0xFF7560C8), h * 0.09f, Offset(w * 0.76f, h * 0.15f))
+                    for (p in listOf(0.07f to 0.13f, 0.23f to 0.24f, 0.40f to 0.12f, 0.61f to 0.26f, 0.89f to 0.12f)) {
+                        drawCircle(Color(0xFFFFE9A8), h * 0.012f, Offset(w * p.first, h * p.second))
+                    }
+                    drawRect(Color(0xFF1B315E), Offset(0f, h * 0.77f), Size(w, h * 0.23f))
+                    for (i in 0..5) drawCircle(Color(0xFF122A4A), h * 0.10f, Offset(w * (0.02f + i * 0.20f), h * 0.73f))
                 }
-            }
-            3 -> {
-                drawCircle(Brush.radialGradient(listOf(Color(0xA9E5FFCF), Color(0x00E5FFCF)), radius = S(60f)), S(45f), Offset(X(50f), Y(50f)))
-                drawCircle(Color(0xFF7ED59A), S(30f), Offset(X(90f), Y(70f)))
-                drawRect(Color(0xFF23573D), Offset(X(0f), Y(230f)), Size(S(360f), S(70f)))
-                for (i in 0..4) {
-                    val tx = 15f + i * 82f
-                    drawCircle(Color(0xFF153D31), S(38f), Offset(X(tx), Y(205f)))
-                    drawCircle(Color(0xFF2D7650), S(30f), Offset(X(tx + 22f), Y(190f)))
-                    drawRect(Color(0xFF69452C), Offset(X(tx + 12f), Y(195f)), Size(S(9f), S(55f)))
-                }
-            }
-            else -> {
-                drawCircle(Brush.radialGradient(listOf(Color(0xFFFFF7C6), Color(0x00FFF7C6)), radius = S(48f)), S(31f), Offset(X(286f), Y(50f)))
-                drawCircle(Color(0xFF7560C8), S(27f), Offset(X(274f), Y(44f)))
-                for (p in listOf(25f to 40f, 82f to 72f, 145f to 36f, 220f to 78f, 320f to 35f)) {
-                    drawCircle(Color(0xFFFFE9A8), S(2.5f), Offset(X(p.first), Y(p.second)))
-                    drawCircle(Color(0xFFFFE9A8), S(1.5f), Offset(X(p.first + 18f), Y(p.second + 18f)))
-                }
-                drawRect(Color(0xFF1B315E), Offset(X(0f), Y(232f)), Size(S(360f), S(68f)))
-                for (i in 0..5) drawCircle(Color(0xFF122A4A), S(30f), Offset(X(5f + i * 70f), Y(220f)))
             }
         }
 
-        // Mascota 3D de videojuego: respiración, flotación, orejas, parpadeo y brillo.
-        val bob = sin((breath + 0.5f) * PI.toFloat()) * 2.2f + floatPhase * 0.6f
-        val cx = X(180f)
-        val cy = Y(164f + bob)
-        // Mantener las proporciones y posiciones del personaje completas evita que el cuerpo se desmonte durante la animación.
-        // La respiración se aplica de forma muy sutil, no escalando cada pieza por separado.
-        val sc = 0.94f
-        val sx = sc
-        val sy = sc
-        val earSway = sway * sc
-        val blink = if (blinkPhase > 0.91f && blinkPhase < 0.965f) 0.16f else 1f
+        // Modelo GLB real de los conejitos. SceneView usa Filament y reproduce
+        // automáticamente las animaciones glTF/GLB incluidas en el archivo.
+        val engine = rememberEngine()
+        val modelLoader = rememberModelLoader(engine)
+        val model = rememberModelInstance(modelLoader, "models/conejitos_pixar.glb")
 
-        // Sombra suave bajo la mascota.
-        drawOval(
-            brush = Brush.radialGradient(listOf(Color(0x66000000), Color(0x00000000)), radius = S(78f)),
-            topLeft = Offset(X(102f), Y(239f)),
-            size = Size(S(156f), S(30f))
-        )
-
-        val body = when (stage) {
-            0 -> Color(0xFFF1D4B1)
-            1 -> Color(0xFFF0E4CE)
-            2 -> Color(0xFFE3D1B7)
-            3 -> Color(0xFFD0A47A)
-            else -> Color(0xFFF1EEE5)
-        }
-        val bodyDark = when (stage) {
-            0 -> Color(0xFFC28C63)
-            1 -> Color(0xFFC0B39F)
-            2 -> Color(0xFFB99F83)
-            3 -> Color(0xFF986B4A)
-            else -> Color(0xFFC0BAAE)
-        }
-        val bodyLight = when (stage) {
-            0 -> Color(0xFFFFE9CC)
-            1 -> Color(0xFFFFF7E9)
-            2 -> Color(0xFFF2E5D1)
-            3 -> Color(0xFFE3BC92)
-            else -> Color(0xFFFFFCF4)
+        SceneView(
+            modifier = Modifier.fillMaxSize(),
+            surfaceType = SurfaceType.TextureSurface,
+            isOpaque = false,
+            frameRatePolicy = FrameRatePolicy.Continuous,
+            engine = engine,
+            modelLoader = modelLoader,
+            cameraManipulator = null,
+            autoCenterContent = true,
+            autoFitContent = true
+        ) {
+            model?.let { instance ->
+                ModelNode(
+                    modelInstance = instance,
+                    scaleToUnits = 1.55f,
+                    autoAnimate = true,
+                    animationLoop = true,
+                    animationSpeed = 1.0f
+                )
+            }
         }
 
-        fun oval3d(left: Float, top: Float, width: Float, height: Float, base: Color, dark: Color, light: Color) {
-            val c = Offset(X(left + width * 0.30f), Y(top + height * 0.27f))
-            drawOval(
-                brush = Brush.radialGradient(
-                    listOf(light, base, dark),
-                    center = c,
-                    radius = S(max(width, height) * 0.72f)
-                ),
-                topLeft = Offset(X(left), Y(top)),
-                size = Size(S(width), S(height))
-            )
-        }
-
-        // Cuerpo volumétrico.
-        // Cuerpo redondeado y compacto, con volumen tipo personaje de videojuego 3D.
-        oval3d(116f, 158f, 128f * sx, 132f * sy, body, bodyDark, bodyLight)
-        oval3d(142f, 190f, 76f * sx, 72f * sy, Color(0xFFF7F2E7), Color(0xFFD9D0C1), Color.White)
-
-        // Brazos y patas integrados visualmente con el cuerpo.
-        oval3d(96f, 180f, 30f * sx, 66f * sy, body, bodyDark, bodyLight)
-        oval3d(234f, 180f, 30f * sx, 66f * sy, body, bodyDark, bodyLight)
-        oval3d(112f, 230f, 40f * sx, 25f * sy, bodyDark, bodyDark, bodyLight)
-        oval3d(208f, 230f, 40f * sx, 25f * sy, bodyDark, bodyDark, bodyLight)
-        drawOval(Color(0xFFFFA8AD), Offset(X(122f), Y(237f + bob)), Size(S(17f * sx), S(8f * sy)))
-        drawOval(Color(0xFFFFA8AD), Offset(X(221f), Y(237f + bob)), Size(S(17f * sx), S(8f * sy)))
-
-        // Cabeza algo más pequeña y proporcionada.
-        oval3d(128f, 58f + bob, 104f * sx, 108f * sy, body, bodyDark, bodyLight)
-
-        // Orejas 3D articuladas.
-        withTransform({ rotate(earSway, Offset(cx - S(34f * sx), cy - S(160f * sy))) }) {
-            oval3d(132f, 14f + bob, 38f * sx, 94f * sy, bodyDark, bodyDark, bodyLight)
-            drawOval(Color(0xFFFFA2A8), Offset(X(142f), Y(22f + bob)), Size(S(17f * sx), S(72f * sy)))
-            drawOval(Color(0x88FFFFFF), Offset(X(145f), Y(25f + bob)), Size(S(5f * sx), S(52f * sy)))
-        }
-        withTransform({ rotate(-earSway, Offset(cx + S(34f * sx), cy - S(160f * sy))) }) {
-            oval3d(190f, 14f + bob, 38f * sx, 94f * sy, bodyDark, bodyDark, bodyLight)
-            drawOval(Color(0xFFFFA2A8), Offset(X(201f), Y(22f + bob)), Size(S(17f * sx), S(72f * sy)))
-            drawOval(Color(0x88FFFFFF), Offset(X(204f), Y(25f + bob)), Size(S(5f * sx), S(52f * sy)))
-        }
-
-        // Mejillas y hocico con iluminación suave.
-        drawCircle(Color(0xFFFFC3C7), S(9f * sx), Offset(X(137f), Y(120f + bob)))
-        drawCircle(Color(0xFFFFC3C7), S(9f * sx), Offset(X(223f), Y(120f + bob)))
-        oval3d(140f, 105f + bob, 80f * sx, 55f * sy, Color(0xFFFDFBF5), Color(0xFFE2DDD3), Color.White)
-
-        // Ojos grandes, expresivos y con reflejo.
-        drawOval(
-            brush = Brush.radialGradient(listOf(Color.White, Color(0xFFF4F4F0), Color(0xFF24201F))),
-            topLeft = Offset(X(148f), Y(91f + bob)),
-            size = Size(S(23f * sx), S(25f * sy * blink))
-        )
-        drawOval(
-            brush = Brush.radialGradient(listOf(Color.White, Color(0xFFF4F4F0), Color(0xFF24201F))),
-            topLeft = Offset(X(189f), Y(91f + bob)),
-            size = Size(S(23f * sx), S(25f * sy * blink))
-        )
-        if (blink > 0.5f) {
-            drawCircle(Color.White, S(4.5f * sx), Offset(X(154f), Y(97f + bob)))
-            drawCircle(Color.White, S(4.5f * sx), Offset(X(195f), Y(97f + bob)))
-            drawCircle(Color(0xAAFFFFFF), S(2f * sx), Offset(X(160f), Y(105f + bob)))
-            drawCircle(Color(0xAAFFFFFF), S(2f * sx), Offset(X(201f), Y(105f + bob)))
-        }
-
-        // Nariz, boca y bigotes.
-        drawOval(Color(0xFFFF8D91), Offset(X(171f), Y(116f + bob)), Size(S(18f * sx), S(12f * sy)))
-        drawLine(Color(0xFF3B2B28), Offset(X(180f), Y(126f + bob)), Offset(X(171f), Y(135f + bob)), S(2.8f))
-        drawLine(Color(0xFF3B2B28), Offset(X(180f), Y(126f + bob)), Offset(X(189f), Y(135f + bob)), S(2.8f))
-        for (dy in listOf(114f, 124f)) {
-            drawLine(Color(0xFF77736E), Offset(X(139f), Y(dy + bob)), Offset(X(105f), Y(dy - 7f + bob)), S(2f))
-            drawLine(Color(0xFF77736E), Offset(X(221f), Y(dy + bob)), Offset(X(255f), Y(dy - 7f + bob)), S(2f))
-        }
-
-        // Brillo ambiental de personaje y partículas de evolución.
+        // Brillos ambientales sutiles para conservar el acabado de mascota de videojuego.
         if (stage >= 3) {
-            drawCircle(Color(0xFFFFD95A), S(5f), Offset(X(91f), Y(74f + bob)))
-            drawCircle(Color(0xFFFFD95A), S(5f), Offset(X(269f), Y(74f + bob)))
-        }
-        if (stage == 4) {
-            drawCircle(Color(0xFF9B8AFF), S(7f), Offset(X(90f), Y(110f + bob)))
-            drawCircle(Color(0xFF9B8AFF), S(7f), Offset(X(270f), Y(110f + bob)))
-            drawCircle(Color(0xFFFFE7A0), S(2.5f), Offset(X(110f), Y(55f + bob)))
-            drawCircle(Color(0xFFFFE7A0), S(2.5f), Offset(X(250f), Y(52f + bob)))
-        }
-        if (health < 30) {
-            drawCircle(Color(0xFFFFD54F), S(9f), Offset(X(272f), Y(34f + bob)))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 28.dp),
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
+                Text("✦", color = Color(0xFFFFE36B), fontSize = 22.sp)
+                Text("✦", color = Color(0xFFFFE36B), fontSize = 18.sp)
+            }
         }
     }
 }
