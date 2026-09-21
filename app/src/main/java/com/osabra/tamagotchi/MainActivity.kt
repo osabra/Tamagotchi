@@ -168,8 +168,6 @@ private fun PetScene(level: Int, health: Int) {
             .height(300.dp)
             .clip(RoundedCornerShape(30.dp))
     ) {
-        // Fondo evolutivo de la mascota: mantiene el estilo de la pantalla actual
-        // y cambia de ambiente a medida que sube de nivel.
         Canvas(Modifier.fillMaxSize()) {
             val w = size.width
             val h = size.height
@@ -197,11 +195,6 @@ private fun PetScene(level: Int, health: Int) {
                 1 -> {
                     drawCircle(Color(0x99FFF7C2), h * 0.20f, Offset(w * 0.15f, h * 0.18f))
                     drawCircle(Color(0xFFFFE36B), h * 0.028f, Offset(w * 0.15f, h * 0.17f))
-                    drawCircle(Color(0xBFFFFFFF), h * 0.08f, Offset(w * 0.42f, h * 0.13f))
-                    drawCircle(Color(0xBFFFFFFF), h * 0.10f, Offset(w * 0.50f, h * 0.13f))
-                    drawCircle(Color(0xBFFFFFFF), h * 0.07f, Offset(w * 0.58f, h * 0.14f))
-                    drawOval(Color(0xFF76C86A), Offset(-w * 0.12f, h * 0.45f), Size(w * 0.62f, h * 0.42f))
-                    drawOval(Color(0xFF63B85F), Offset(w * 0.48f, h * 0.44f), Size(w * 0.68f, h * 0.43f))
                     drawRect(Color(0xFF5FA94F), Offset(0f, h * 0.75f), Size(w, h * 0.25f))
                     for (i in 0..5) {
                         val x = w * (0.06f + i * 0.19f)
@@ -214,7 +207,6 @@ private fun PetScene(level: Int, health: Int) {
                 2 -> {
                     drawCircle(Color(0xFFFFF0C0), h * 0.12f, Offset(w * 0.79f, h * 0.16f))
                     drawCircle(Color(0xFFFFB17A), h * 0.035f, Offset(w * 0.15f, h * 0.20f))
-                    drawCircle(Color(0xFFFFB17A), h * 0.03f, Offset(w * 0.25f, h * 0.27f))
                     drawRect(Color(0xFF7D4F3D), Offset(0f, h * 0.77f), Size(w, h * 0.23f))
                     for (i in 0..3) {
                         val x = w * (0.07f + i * 0.29f)
@@ -240,49 +232,34 @@ private fun PetScene(level: Int, health: Int) {
                         drawCircle(Color(0xFFFFE9A8), h * 0.012f, Offset(w * p.first, h * p.second))
                     }
                     drawRect(Color(0xFF1B315E), Offset(0f, h * 0.77f), Size(w, h * 0.23f))
-                    for (i in 0..5) drawCircle(Color(0xFF122A4A), h * 0.10f, Offset(w * (0.02f + i * 0.20f), h * 0.73f))
+                    for (i in 0..5) {
+                        drawCircle(Color(0xFF122A4A), h * 0.10f, Offset(w * (0.02f + i * 0.20f), h * 0.73f))
+                    }
                 }
             }
         }
 
-        // Modelo GLB real de los conejitos. SceneView usa Filament y reproduce
-        // automáticamente las animaciones glTF/GLB incluidas en el archivo.
+        // SceneView 4.x: keep the 3D scene deliberately minimal so the build
+        // is compatible with the stable API of 4.0.2. The GLB's embedded
+        // animations are played automatically by ModelNode.
         val engine = rememberEngine()
         val modelLoader = rememberModelLoader(engine)
-        val model = rememberModelInstance(modelLoader, "models/conejitos_pixar.glb")
+        val modelInstance = rememberModelInstance(modelLoader, "models/conejitos_pixar.glb")
 
         SceneView(
             modifier = Modifier.fillMaxSize(),
-            surfaceType = SurfaceType.TextureSurface,
-            isOpaque = false,
-            frameRatePolicy = FrameRatePolicy.Continuous,
             engine = engine,
             modelLoader = modelLoader,
-            cameraManipulator = null,
-            autoCenterContent = true,
-            autoFitContent = true
+            cameraManipulator = null
         ) {
-            model?.let { instance ->
+            modelInstance?.let { instance ->
                 ModelNode(
                     modelInstance = instance,
-                    scaleToUnits = 1.55f,
+                    scaleToUnits = 1.0f,
                     autoAnimate = true,
                     animationLoop = true,
                     animationSpeed = 1.0f
                 )
-            }
-        }
-
-        // Brillos ambientales sutiles para conservar el acabado de mascota de videojuego.
-        if (stage >= 3) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 28.dp),
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                Text("✦", color = Color(0xFFFFE36B), fontSize = 22.sp)
-                Text("✦", color = Color(0xFFFFE36B), fontSize = 18.sp)
             }
         }
     }
