@@ -268,8 +268,8 @@ private fun PetScene(level: Int, health: Int) {
         // Mantener las proporciones y posiciones del personaje completas evita que el cuerpo se desmonte durante la animación.
         // La respiración se aplica de forma muy sutil, no escalando cada pieza por separado.
         val sc = 1f
-        val sx = sc * (1f + breath * 0.018f)
-        val sy = sc * (1f - breath * 0.014f)
+        val sx = sc
+        val sy = sc
         val earSway = sway * sc
         val blink = if (blinkPhase > 0.91f && blinkPhase < 0.965f) 0.16f else 1f
 
@@ -316,59 +316,60 @@ private fun PetScene(level: Int, health: Int) {
         }
 
         // Cuerpo volumétrico.
-        oval3d(112f, 160f, 136f * sx, 134f * sy, body, bodyDark, bodyLight)
-        oval3d(140f, 188f, 80f * sx, 78f * sy, Color(0xFFF7F2E7), Color(0xFFD9D0C1), Color.White)
+        // Cuerpo redondeado y compacto, con volumen tipo personaje de videojuego 3D.
+        oval3d(116f, 158f, 128f * sx, 132f * sy, body, bodyDark, bodyLight)
+        oval3d(142f, 190f, 76f * sx, 72f * sy, Color(0xFFF7F2E7), Color(0xFFD9D0C1), Color.White)
 
-        // Brazos/patas con volumen.
-        oval3d(92f, 177f, 34f * sx, 76f * sy, body, bodyDark, bodyLight)
-        oval3d(234f, 177f, 34f * sx, 76f * sy, body, bodyDark, bodyLight)
-        oval3d(108f, 222f, 46f * sx, 29f * sy, bodyDark, bodyDark, bodyLight)
-        oval3d(206f, 222f, 46f * sx, 29f * sy, bodyDark, bodyDark, bodyLight)
-        drawOval(Color(0xFFFFA8AD), Offset(X(123f), Y(232f + bob)), Size(S(20f * sx), S(10f * sy)))
-        drawOval(Color(0xFFFFA8AD), Offset(X(217f), Y(232f + bob)), Size(S(20f * sx), S(10f * sy)))
+        // Brazos y patas integrados visualmente con el cuerpo.
+        oval3d(96f, 180f, 30f * sx, 66f * sy, body, bodyDark, bodyLight)
+        oval3d(234f, 180f, 30f * sx, 66f * sy, body, bodyDark, bodyLight)
+        oval3d(112f, 230f, 40f * sx, 25f * sy, bodyDark, bodyDark, bodyLight)
+        oval3d(208f, 230f, 40f * sx, 25f * sy, bodyDark, bodyDark, bodyLight)
+        drawOval(Color(0xFFFFA8AD), Offset(X(122f), Y(237f + bob)), Size(S(17f * sx), S(8f * sy)))
+        drawOval(Color(0xFFFFA8AD), Offset(X(221f), Y(237f + bob)), Size(S(17f * sx), S(8f * sy)))
 
-        // Cabeza.
-        oval3d(122f, 52f + bob, 116f * sx, 118f * sy, body, bodyDark, bodyLight)
+        // Cabeza algo más pequeña y proporcionada.
+        oval3d(128f, 58f + bob, 104f * sx, 108f * sy, body, bodyDark, bodyLight)
 
         // Orejas 3D articuladas.
         withTransform({ rotate(earSway, Offset(cx - S(34f * sx), cy - S(160f * sy))) }) {
-            oval3d(122f, 4f + bob, 46f * sx, 112f * sy, bodyDark, bodyDark, bodyLight)
-            drawOval(Color(0xFFFFA2A8), Offset(X(134f), Y(13f + bob)), Size(S(20f * sx), S(88f * sy)))
-            drawOval(Color(0x66FFFFFF), Offset(X(138f), Y(16f + bob)), Size(S(6f * sx), S(65f * sy)))
+            oval3d(132f, 14f + bob, 38f * sx, 94f * sy, bodyDark, bodyDark, bodyLight)
+            drawOval(Color(0xFFFFA2A8), Offset(X(142f), Y(22f + bob)), Size(S(17f * sx), S(72f * sy)))
+            drawOval(Color(0x88FFFFFF), Offset(X(145f), Y(25f + bob)), Size(S(5f * sx), S(52f * sy)))
         }
         withTransform({ rotate(-earSway, Offset(cx + S(34f * sx), cy - S(160f * sy))) }) {
-            oval3d(192f, 4f + bob, 46f * sx, 112f * sy, bodyDark, bodyDark, bodyLight)
-            drawOval(Color(0xFFFFA2A8), Offset(X(204f), Y(13f + bob)), Size(S(20f * sx), S(88f * sy)))
-            drawOval(Color(0x66FFFFFF), Offset(X(208f), Y(16f + bob)), Size(S(6f * sx), S(65f * sy)))
+            oval3d(190f, 14f + bob, 38f * sx, 94f * sy, bodyDark, bodyDark, bodyLight)
+            drawOval(Color(0xFFFFA2A8), Offset(X(201f), Y(22f + bob)), Size(S(17f * sx), S(72f * sy)))
+            drawOval(Color(0x88FFFFFF), Offset(X(204f), Y(25f + bob)), Size(S(5f * sx), S(52f * sy)))
         }
 
         // Mejillas y hocico con iluminación suave.
         drawCircle(Color(0xFFFFC3C7), S(9f * sx), Offset(X(137f), Y(120f + bob)))
         drawCircle(Color(0xFFFFC3C7), S(9f * sx), Offset(X(223f), Y(120f + bob)))
-        oval3d(137f, 102f + bob, 86f * sx, 60f * sy, Color(0xFFFDFBF5), Color(0xFFE2DDD3), Color.White)
+        oval3d(140f, 105f + bob, 80f * sx, 55f * sy, Color(0xFFFDFBF5), Color(0xFFE2DDD3), Color.White)
 
         // Ojos grandes, expresivos y con reflejo.
         drawOval(
             brush = Brush.radialGradient(listOf(Color.White, Color(0xFFF4F4F0), Color(0xFF24201F))),
-            topLeft = Offset(X(145f), Y(88f + bob)),
-            size = Size(S(25f * sx), S(27f * sy * blink))
+            topLeft = Offset(X(148f), Y(91f + bob)),
+            size = Size(S(23f * sx), S(25f * sy * blink))
         )
         drawOval(
             brush = Brush.radialGradient(listOf(Color.White, Color(0xFFF4F4F0), Color(0xFF24201F))),
-            topLeft = Offset(X(190f), Y(88f + bob)),
-            size = Size(S(25f * sx), S(27f * sy * blink))
+            topLeft = Offset(X(189f), Y(91f + bob)),
+            size = Size(S(23f * sx), S(25f * sy * blink))
         )
         if (blink > 0.5f) {
-            drawCircle(Color.White, S(5f * sx), Offset(X(152f), Y(94f + bob)))
-            drawCircle(Color.White, S(5f * sx), Offset(X(197f), Y(94f + bob)))
-            drawCircle(Color(0xAAFFFFFF), S(2f * sx), Offset(X(158f), Y(102f + bob)))
-            drawCircle(Color(0xAAFFFFFF), S(2f * sx), Offset(X(203f), Y(102f + bob)))
+            drawCircle(Color.White, S(4.5f * sx), Offset(X(154f), Y(97f + bob)))
+            drawCircle(Color.White, S(4.5f * sx), Offset(X(195f), Y(97f + bob)))
+            drawCircle(Color(0xAAFFFFFF), S(2f * sx), Offset(X(160f), Y(105f + bob)))
+            drawCircle(Color(0xAAFFFFFF), S(2f * sx), Offset(X(201f), Y(105f + bob)))
         }
 
         // Nariz, boca y bigotes.
-        drawOval(Color(0xFFFF8D91), Offset(X(170f), Y(113f + bob)), Size(S(20f * sx), S(13f * sy)))
-        drawLine(Color(0xFF3B2B28), Offset(X(180f), Y(124f + bob)), Offset(X(169f), Y(134f + bob)), S(3f))
-        drawLine(Color(0xFF3B2B28), Offset(X(180f), Y(124f + bob)), Offset(X(191f), Y(134f + bob)), S(3f))
+        drawOval(Color(0xFFFF8D91), Offset(X(171f), Y(116f + bob)), Size(S(18f * sx), S(12f * sy)))
+        drawLine(Color(0xFF3B2B28), Offset(X(180f), Y(126f + bob)), Offset(X(171f), Y(135f + bob)), S(2.8f))
+        drawLine(Color(0xFF3B2B28), Offset(X(180f), Y(126f + bob)), Offset(X(189f), Y(135f + bob)), S(2.8f))
         for (dy in listOf(114f, 124f)) {
             drawLine(Color(0xFF77736E), Offset(X(139f), Y(dy + bob)), Offset(X(105f), Y(dy - 7f + bob)), S(2f))
             drawLine(Color(0xFF77736E), Offset(X(221f), Y(dy + bob)), Offset(X(255f), Y(dy - 7f + bob)), S(2f))
