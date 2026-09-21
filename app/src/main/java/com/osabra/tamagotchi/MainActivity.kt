@@ -71,7 +71,7 @@ private fun TamagotchiApp(store: PetStore) {
     MaterialTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFFFFF7E8)) {
             Column(Modifier.fillMaxSize().padding(horizontal=12.dp, vertical=10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("🐾  Mi Mascota  🐾", fontSize=28.sp, fontWeight=FontWeight.Bold)
+                Text("🐾  Mi Mascota  🐾", fontSize=28.sp, fontWeight=FontWeight.Bold, color=Color(0xFF15131A))
                 Text("Nivel " + pet.level + "   🪙 " + pet.coins, fontSize=20.sp, fontWeight=FontWeight.Medium)
                 Spacer(Modifier.height(10.dp))
                 PetScene(pet.level, pet.health)
@@ -217,15 +217,37 @@ private fun PetScene(level: Int, health: Int) {
                 }
             }
             1 -> {
-                drawCircle(Brush.radialGradient(listOf(Color(0x99FFFFFF), Color(0x00FFFFFF)), radius = S(50f)), S(42f), Offset(X(60f), Y(50f)))
-                drawCircle(Color(0xFFFFE36B), S(4f), Offset(X(315f), Y(44f)))
-                drawCircle(Color(0xFFFFF1A8), S(2f), Offset(X(280f), Y(70f)))
-                drawRect(Color(0xFF5DA24F), Offset(X(0f), Y(232f)), Size(S(360f), S(68f)))
+                // Jardín luminoso: más profundidad y acabado de videojuego 3D.
+                drawCircle(Brush.radialGradient(listOf(Color(0xCCFFF7C2), Color(0x00FFF7C2)), radius = S(62f)), S(48f), Offset(X(58f), Y(50f)))
+                drawCircle(Color(0xFFFFE36B), S(7f), Offset(X(58f), Y(48f)))
+                // Nubes suaves.
+                drawCircle(Color(0xBFFFFFFF), S(18f), Offset(X(128f), Y(38f)))
+                drawCircle(Color(0xBFFFFFFF), S(24f), Offset(X(151f), Y(39f)))
+                drawCircle(Color(0xBFFFFFFF), S(17f), Offset(X(176f), Y(42f)))
+                drawCircle(Color(0xBFFFFFFF), S(15f), Offset(X(286f), Y(63f)))
+                drawCircle(Color(0xBFFFFFFF), S(21f), Offset(X(307f), Y(62f)))
+                // Línea de fondo y colinas.
+                drawOval(Color(0xFF76C86A), Offset(X(-45f), Y(145f)), Size(S(230f), S(125f)))
+                drawOval(Color(0xFF63B85F), Offset(X(175f), Y(142f)), Size(S(240f), S(128f)))
+                // Árboles con varias capas para dar volumen.
                 for (i in 0..5) {
-                    val tx = 10f + i * 68f
-                    drawCircle(Color(0xFF2B754D), S(34f), Offset(X(tx), Y(195f)))
-                    drawCircle(Color(0xFF55A961), S(27f), Offset(X(tx + 25f), Y(181f)))
-                    drawRect(Color(0xFF70492D), Offset(X(tx + 10f), Y(185f)), Size(S(9f), S(65f)))
+                    val tx = 8f + i * 68f
+                    drawRect(Color(0xFF765034), Offset(X(tx + 18f), Y(187f)), Size(S(10f), S(62f)))
+                    drawCircle(Color(0xFF276B4D), S(34f), Offset(X(tx + 18f), Y(191f)))
+                    drawCircle(Color(0xFF3D8E55), S(29f), Offset(X(tx + 38f), Y(178f)))
+                    drawCircle(Color(0xFF58AA5E), S(21f), Offset(X(tx + 28f), Y(164f)))
+                }
+                // Césped y flores.
+                drawRect(Color(0xFF5FA94F), Offset(X(0f), Y(226f)), Size(S(360f), S(74f)))
+                for (x in listOf(22f, 72f, 120f, 252f, 305f, 340f)) {
+                    drawCircle(Color(0xFFFFF2D0), S(4f), Offset(X(x), Y(246f)))
+                    drawCircle(Color(0xFFFFA7A7), S(2.2f), Offset(X(x - 3f), Y(243f)))
+                    drawCircle(Color(0xFFFFA7A7), S(2.2f), Offset(X(x + 3f), Y(243f)))
+                }
+                // Valla discreta detrás de la mascota.
+                for (x in listOf(70f, 120f, 240f, 290f)) {
+                    drawRoundRect(Color(0xFFB98255), Offset(X(x), Y(205f)), Size(S(28f), S(38f)), CornerRadius(S(4f), S(4f)))
+                    drawRoundRect(Color(0xFFD19A68), Offset(X(x + 2f), Y(207f)), Size(S(24f), S(34f)), CornerRadius(S(3f), S(3f)))
                 }
             }
             2 -> {
@@ -262,12 +284,12 @@ private fun PetScene(level: Int, health: Int) {
         }
 
         // Mascota 3D de videojuego: respiración, flotación, orejas, parpadeo y brillo.
-        val bob = sin((breath + 0.5f) * PI.toFloat()) * 2.8f + floatPhase * 0.8f
+        val bob = sin((breath + 0.5f) * PI.toFloat()) * 2.2f + floatPhase * 0.6f
         val cx = X(180f)
         val cy = Y(164f + bob)
         // Mantener las proporciones y posiciones del personaje completas evita que el cuerpo se desmonte durante la animación.
         // La respiración se aplica de forma muy sutil, no escalando cada pieza por separado.
-        val sc = 1f
+        val sc = 0.94f
         val sx = sc
         val sy = sc
         val earSway = sway * sc
