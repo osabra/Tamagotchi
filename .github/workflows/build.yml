@@ -21,6 +21,27 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.9"
+      - name: Inspect GLB nodes
+        run: |
+          python3 - <<'PY'
+          import struct, json
+          p='app/src/main/assets/models/conejitos_pixar.glb'
+          b=open(p,'rb').read()
+          magic,ver,length=struct.unpack_from('<4sII',b,0)
+          off=12
+          while off < length:
+              n,typ=struct.unpack_from('<II',b,off); off+=8
+              chunk=b[off:off+n]; off+=n
+              if typ == 0x4E4F534A:
+                  j=json.loads(chunk.decode('utf-8'))
+                  break
+          print('SCENES', j.get('scenes'))
+          for i,node in enumerate(j.get('nodes',[])):
+              print('NODE',i,'name=',node.get('name'),'mesh=',node.get('mesh'),'children=',node.get('children'),'translation=',node.get('translation'),'scale=',node.get('scale'))
+          print('ANIMATIONS')
+          for i,a in enumerate(j.get('animations',[])):
+              print(i,a.get('name'))
+          PY
       - name: Build APK
         run: gradle --no-daemon --stacktrace clean assembleDebug
       - name: Verify APK exists
