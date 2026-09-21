@@ -262,8 +262,7 @@ private fun PetScene(level: Int, health: Int) {
             engine = engine,
             modelLoader = modelLoader,
             renderer = renderer,
-            cameraManipulator = null,
-            autoCenterContent = false
+            cameraManipulator = null
         ) {
             modelInstance?.let { instance ->
                 ModelNode(
