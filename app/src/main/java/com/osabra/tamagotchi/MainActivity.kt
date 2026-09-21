@@ -34,7 +34,6 @@ import kotlin.math.sin
 import kotlin.math.PI
 import kotlin.random.Random
 import io.github.sceneview.SceneView
-import io.github.sceneview.FrameRatePolicy
 import io.github.sceneview.SurfaceType
 import io.github.sceneview.math.Position
 import io.github.sceneview.node.ModelNode
