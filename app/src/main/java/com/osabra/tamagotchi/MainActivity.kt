@@ -42,6 +42,8 @@ import io.github.sceneview.rememberEngine
 import io.github.sceneview.rememberModelInstance
 import io.github.sceneview.rememberModelLoader
 import io.github.sceneview.rememberRenderer
+import io.github.sceneview.rememberView
+import com.google.android.filament.View
 
 private data class PetState(
     val hunger: Int = 80, val happiness: Int = 80, val energy: Int = 80, val hygiene: Int = 80,
@@ -245,7 +247,11 @@ private fun PetScene(level: Int, health: Int) {
         val engine = rememberEngine()
         val modelLoader = rememberModelLoader(engine)
         val renderer = rememberRenderer(engine).apply {
-            clearOptions.clear = false
+            clearOptions.clear = true
+            clearOptions.clearColor = floatArrayOf(0f, 0f, 0f, 0f)
+        }
+        val view = rememberView(engine).apply {
+            blendMode = View.BlendMode.TRANSLUCENT
         }
         val modelInstance = rememberModelInstance(modelLoader, "models/conejitos_pixar.glb")
         val visibleRange = when {
@@ -262,6 +268,7 @@ private fun PetScene(level: Int, health: Int) {
             engine = engine,
             modelLoader = modelLoader,
             renderer = renderer,
+            view = view,
             cameraManipulator = null
         ) {
             modelInstance?.let { instance ->
